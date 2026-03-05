@@ -1,0 +1,418 @@
+---
+title: 'Users'
+description: 'Manage system users including students, teachers, and administrators'
+---
+
+## Overview
+
+The Users API allows you to manage all types of users in the system, including students (estudiantes), teachers (docentes), and administrators. Users are associated with institutions and have different roles.
+
+## Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/users` | List all users |
+| POST | `/api/users` | Create a new user |
+| GET | `/api/users/{id}` | Get a specific user |
+| PUT | `/api/users/{id}` | Update a user |
+| DELETE | `/api/users/{id}` | Delete a user |
+
+---
+
+## List All Users
+
+<CodeGroup>
+```bash GET /api/users
+curl -X GET "https://api.example.com/api/users" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+</CodeGroup>
+
+### Response
+
+<ResponseField name="success" type="boolean" required>
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string" required>
+  Response message in Spanish
+</ResponseField>
+
+<ResponseField name="data" type="array" required>
+  Array of user objects
+  
+  <Expandable title="User Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the user
+    </ResponseField>
+    
+    <ResponseField name="institutions_id" type="integer">
+      Foreign key referencing the institution this user belongs to
+    </ResponseField>
+    
+    <ResponseField name="rol" type="string">
+      User role (e.g., "estudiante", "docente", "administrador")
+    </ResponseField>
+    
+    <ResponseField name="nombre" type="string">
+      User's first name
+    </ResponseField>
+    
+    <ResponseField name="apellido" type="string">
+      User's last name
+    </ResponseField>
+    
+    <ResponseField name="email" type="string">
+      User's email address (unique)
+    </ResponseField>
+    
+    <ResponseField name="documento_identidad" type="string" optional>
+      National identity document number (DNI, etc.)
+    </ResponseField>
+    
+    <ResponseField name="fecha_nacimiento" type="date" optional>
+      Date of birth (YYYY-MM-DD)
+    </ResponseField>
+    
+    <ResponseField name="telefono" type="string" optional>
+      Contact phone number
+    </ResponseField>
+    
+    <ResponseField name="activo" type="boolean">
+      Whether the user account is active (default: true)
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      Record creation timestamp
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      Record last update timestamp
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<CodeGroup>
+```json Response Example
+{
+  "success": true,
+  "message": "Usuarios listados con éxito",
+  "data": [
+    {
+      "id": 1,
+      "institutions_id": 1,
+      "rol": "estudiante",
+      "nombre": "Juan",
+      "apellido": "Pérez García",
+      "email": "juan.perez@estudiante.edu.pe",
+      "documento_identidad": "72345678",
+      "fecha_nacimiento": "2010-05-15",
+      "telefono": "+51 987 654 321",
+      "activo": true,
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    },
+    {
+      "id": 2,
+      "institutions_id": 1,
+      "rol": "docente",
+      "nombre": "María",
+      "apellido": "Rodriguez Santos",
+      "email": "maria.rodriguez@docente.edu.pe",
+      "documento_identidad": "45678901",
+      "fecha_nacimiento": "1985-08-20",
+      "telefono": "+51 987 123 456",
+      "activo": true,
+      "created_at": "2026-03-05T11:00:00.000000Z",
+      "updated_at": "2026-03-05T11:00:00.000000Z"
+    }
+  ]
+}
+```
+</CodeGroup>
+
+<Note>
+  The `password` field is hidden in API responses for security purposes.
+</Note>
+
+---
+
+## Create User
+
+<CodeGroup>
+```bash POST /api/users
+curl -X POST "https://api.example.com/api/users" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "institutions_id": 1,
+    "rol": "estudiante",
+    "nombre": "Carlos",
+    "apellido": "Mendoza Lima",
+    "email": "carlos.mendoza@estudiante.edu.pe",
+    "password": "SecurePass123!",
+    "documento_identidad": "76543210",
+    "fecha_nacimiento": "2011-03-22",
+    "telefono": "+51 912 345 678",
+    "activo": true
+  }'
+```
+</CodeGroup>
+
+### Request Parameters
+
+<ParamField path="institutions_id" type="integer" required>
+  ID of the institution this user belongs to. Must reference a valid institution.
+</ParamField>
+
+<ParamField path="rol" type="string" required>
+  User role in the system. Common values: "estudiante" (student), "docente" (teacher), "administrador" (administrator)
+</ParamField>
+
+<ParamField path="nombre" type="string" required>
+  User's first name
+</ParamField>
+
+<ParamField path="apellido" type="string" required>
+  User's last name
+</ParamField>
+
+<ParamField path="email" type="string" required>
+  User's email address. Must be unique across all users.
+</ParamField>
+
+<ParamField path="password" type="string" required>
+  User's password. Will be automatically hashed before storage.
+</ParamField>
+
+<ParamField path="documento_identidad" type="string" optional>
+  National identity document number (DNI, passport, etc.). Can be null.
+</ParamField>
+
+<ParamField path="fecha_nacimiento" type="date" optional>
+  Date of birth in YYYY-MM-DD format. Can be null.
+</ParamField>
+
+<ParamField path="telefono" type="string" optional>
+  Contact phone number. Can be null.
+</ParamField>
+
+<ParamField path="activo" type="boolean" optional>
+  Whether the user account is active. Defaults to true.
+</ParamField>
+
+### Response
+
+<CodeGroup>
+```json 201 - Created
+{
+  "success": true,
+  "message": "Usuario creado con éxito",
+  "data": {
+    "id": 3,
+    "institutions_id": 1,
+    "rol": "estudiante",
+    "nombre": "Carlos",
+    "apellido": "Mendoza Lima",
+    "email": "carlos.mendoza@estudiante.edu.pe",
+    "documento_identidad": "76543210",
+    "fecha_nacimiento": "2011-03-22",
+    "telefono": "+51 912 345 678",
+    "activo": true,
+    "created_at": "2026-03-05T12:30:00.000000Z",
+    "updated_at": "2026-03-05T12:30:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## Get User
+
+<CodeGroup>
+```bash GET /api/users/{id}
+curl -X GET "https://api.example.com/api/users/1" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the user
+</ParamField>
+
+### Response
+
+<CodeGroup>
+```json 200 - Success
+{
+  "success": true,
+  "message": "Usuario obtenido con éxito",
+  "data": {
+    "id": 1,
+    "institutions_id": 1,
+    "rol": "estudiante",
+    "nombre": "Juan",
+    "apellido": "Pérez García",
+    "email": "juan.perez@estudiante.edu.pe",
+    "documento_identidad": "72345678",
+    "fecha_nacimiento": "2010-05-15",
+    "telefono": "+51 987 654 321",
+    "activo": true,
+    "created_at": "2026-03-05T10:30:00.000000Z",
+    "updated_at": "2026-03-05T10:30:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## Update User
+
+<CodeGroup>
+```bash PUT /api/users/{id}
+curl -X PUT "https://api.example.com/api/users/1" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "institutions_id": 1,
+    "rol": "estudiante",
+    "nombre": "Juan Carlos",
+    "apellido": "Pérez García",
+    "email": "juan.perez@estudiante.edu.pe",
+    "password": "NewSecurePass456!",
+    "documento_identidad": "72345678",
+    "fecha_nacimiento": "2010-05-15",
+    "telefono": "+51 987 654 322",
+    "activo": true
+  }'
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the user to update
+</ParamField>
+
+### Request Parameters
+
+All parameters from the Create endpoint apply. You can send partial updates.
+
+<ParamField path="institutions_id" type="integer" required>
+  ID of the institution this user belongs to
+</ParamField>
+
+<ParamField path="rol" type="string" required>
+  User role in the system
+</ParamField>
+
+<ParamField path="nombre" type="string" required>
+  User's first name
+</ParamField>
+
+<ParamField path="apellido" type="string" required>
+  User's last name
+</ParamField>
+
+<ParamField path="email" type="string" required>
+  User's email address (must be unique)
+</ParamField>
+
+<ParamField path="password" type="string" optional>
+  New password (only include if changing password)
+</ParamField>
+
+<ParamField path="documento_identidad" type="string" optional>
+  National identity document number
+</ParamField>
+
+<ParamField path="fecha_nacimiento" type="date" optional>
+  Date of birth (YYYY-MM-DD)
+</ParamField>
+
+<ParamField path="telefono" type="string" optional>
+  Contact phone number
+</ParamField>
+
+<ParamField path="activo" type="boolean" optional>
+  Account active status
+</ParamField>
+
+### Response
+
+<CodeGroup>
+```json 200 - Success
+{
+  "success": true,
+  "message": "Usuario actualizado con éxito",
+  "data": {
+    "id": 1,
+    "institutions_id": 1,
+    "rol": "estudiante",
+    "nombre": "Juan Carlos",
+    "apellido": "Pérez García",
+    "email": "juan.perez@estudiante.edu.pe",
+    "documento_identidad": "72345678",
+    "fecha_nacimiento": "2010-05-15",
+    "telefono": "+51 987 654 322",
+    "activo": true,
+    "created_at": "2026-03-05T10:30:00.000000Z",
+    "updated_at": "2026-03-05T14:45:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## Delete User
+
+<CodeGroup>
+```bash DELETE /api/users/{id}
+curl -X DELETE "https://api.example.com/api/users/1" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the user to delete
+</ParamField>
+
+### Response
+
+<CodeGroup>
+```json 200 - Success
+{
+  "success": true,
+  "message": "Usuario eliminado con éxito",
+  "data": null
+}
+```
+</CodeGroup>
+
+<Warning>
+  Deleting a user will cascade delete all associated registrations where this user is either a student (estudiante_id) or teacher (docente_id).
+</Warning>
+
+---
+
+## User Roles
+
+The system supports different user roles:
+
+- **estudiante**: Student users who can be enrolled in courses
+- **docente**: Teacher users who can teach sections and grade students
+- **administrador**: Administrative users with full system access
+
+The `rol` field should contain one of these values when creating or updating users.

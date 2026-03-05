@@ -1,0 +1,443 @@
+---
+title: "Database Configuration"
+description: "Set up and configure your database"
+---
+
+Backend App supports multiple database drivers including SQLite, MySQL, MariaDB, PostgreSQL, and SQL Server. The default configuration uses SQLite for quick setup and development.
+
+## Default Configuration
+
+By default, the application uses SQLite with a database file stored at `database/database.sqlite`.
+
+```bash .env
+DB_CONNECTION=sqlite
+```
+
+<Note>
+SQLite is perfect for development and small applications. No additional setup or server configuration required.
+</Note>
+
+## Database Setup
+
+### Initial Setup
+
+When setting up the application for the first time, the database file is automatically created:
+
+```bash
+composer setup
+```
+
+This runs the complete setup including migrations:
+
+1. Installs dependencies
+2. Copies `.env.example` to `.env`
+3. Generates application key
+4. Runs database migrations
+5. Installs and builds frontend assets
+
+### Manual Migration
+
+To run migrations manually:
+
+```bash
+php artisan migrate
+```
+
+To run migrations with force (useful in production):
+
+```bash
+php artisan migrate --force
+```
+
+## Database Drivers
+
+<Accordion title="SQLite (Default)">
+
+### Configuration
+
+SQLite requires minimal configuration. The database is stored as a single file.
+
+```bash .env
+DB_CONNECTION=sqlite
+```
+
+The database file location is configured in `config/database.php`:
+
+```php
+'sqlite' => [
+    'driver' => 'sqlite',
+    'url' => env('DB_URL'),
+    'database' => env('DB_DATABASE', database_path('database.sqlite')),
+    'prefix' => '',
+    'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+],
+```
+
+### Creating the Database File
+
+If the database file doesn't exist, create it:
+
+```bash
+touch database/database.sqlite
+```
+
+<Tip>
+SQLite is great for development, testing, and small applications. For production applications with high concurrency, consider MySQL or PostgreSQL.
+</Tip>
+
+</Accordion>
+
+<Accordion title="MySQL">
+
+### Configuration
+
+Update your `.env` file with MySQL connection details:
+
+```bash .env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+### Connection Options
+
+The MySQL configuration in `config/database.php` includes:
+
+```php
+'mysql' => [
+    'driver' => 'mysql',
+    'url' => env('DB_URL'),
+    'host' => env('DB_HOST', '127.0.0.1'),
+    'port' => env('DB_PORT', '3306'),
+    'database' => env('DB_DATABASE', 'laravel'),
+    'username' => env('DB_USERNAME', 'root'),
+    'password' => env('DB_PASSWORD', ''),
+    'unix_socket' => env('DB_SOCKET', ''),
+    'charset' => env('DB_CHARSET', 'utf8mb4'),
+    'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+    'prefix' => '',
+    'prefix_indexes' => true,
+    'strict' => true,
+    'engine' => null,
+],
+```
+
+### Creating the Database
+
+Create the database using MySQL CLI:
+
+```bash
+mysql -u root -p
+```
+
+```sql
+CREATE DATABASE laravel CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+### Additional MySQL Variables
+
+```bash .env
+DB_SOCKET=/path/to/mysql.sock  # For Unix socket connections
+DB_CHARSET=utf8mb4
+DB_COLLATION=utf8mb4_unicode_ci
+MYSQL_ATTR_SSL_CA=/path/to/ca-cert.pem  # For SSL connections
+```
+
+</Accordion>
+
+<Accordion title="MariaDB">
+
+### Configuration
+
+MariaDB uses the same connection settings as MySQL with a different driver:
+
+```bash .env
+DB_CONNECTION=mariadb
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+<Note>
+MariaDB is a drop-in replacement for MySQL with enhanced performance and features.
+</Note>
+
+</Accordion>
+
+<Accordion title="PostgreSQL">
+
+### Configuration
+
+Configure PostgreSQL in your `.env` file:
+
+```bash .env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=laravel
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
+```
+
+### Connection Options
+
+```php
+'pgsql' => [
+    'driver' => 'pgsql',
+    'url' => env('DB_URL'),
+    'host' => env('DB_HOST', '127.0.0.1'),
+    'port' => env('DB_PORT', '5432'),
+    'database' => env('DB_DATABASE', 'laravel'),
+    'username' => env('DB_USERNAME', 'root'),
+    'password' => env('DB_PASSWORD', ''),
+    'charset' => env('DB_CHARSET', 'utf8'),
+    'prefix' => '',
+    'prefix_indexes' => true,
+    'search_path' => 'public',
+    'sslmode' => env('DB_SSLMODE', 'prefer'),
+],
+```
+
+### Creating the Database
+
+```bash
+psql -U postgres
+```
+
+```sql
+CREATE DATABASE laravel WITH ENCODING 'UTF8';
+```
+
+### Additional PostgreSQL Variables
+
+```bash .env
+DB_CHARSET=utf8
+DB_SSLMODE=prefer  # Options: disable, allow, prefer, require, verify-ca, verify-full
+```
+
+</Accordion>
+
+<Accordion title="SQL Server">
+
+### Configuration
+
+For Microsoft SQL Server:
+
+```bash .env
+DB_CONNECTION=sqlsrv
+DB_HOST=localhost
+DB_PORT=1433
+DB_DATABASE=laravel
+DB_USERNAME=sa
+DB_PASSWORD=your_password
+```
+
+### Additional Options
+
+```bash .env
+DB_CHARSET=utf8
+# DB_ENCRYPT=yes
+# DB_TRUST_SERVER_CERTIFICATE=false
+```
+
+</Accordion>
+
+## Migration Files
+
+The application includes the following migrations in `database/migrations/`:
+
+### Core Laravel Migrations
+
+- `0001_01_01_000001_create_cache_table.php` - Cache and cache locks tables
+- `0001_01_01_000002_create_jobs_table.php` - Queue jobs, job batches, and failed jobs
+
+### Application Migrations
+
+- `2026_02_27_202300_create_institutions_table.php` - Institutions
+- `2026_02_27_210506_create_users_table.php` - Users
+- `2026_02_27_214046_section.php` - Sections
+- `2026_03_01_214910_registration.php` - Registrations
+- `2026_03_01_233421_create_units_table.php` - Units
+- `2026_03_01_235915_create_topics_table.php` - Topics
+- `2026_03_02_002017_create_resources_table.php` - Resources
+- `2026_03_02_011220_create_questions_table.php` - Questions
+- `2026_03_05_181016_create_response_options_table.php` - Response options
+- `2026_03_05_183245_evaluations.php` - Evaluations
+- `2026_03_05_191516_eval_preguntas.php` - Evaluation questions
+
+<Note>
+Migrations are run in chronological order based on their timestamp prefix.
+</Note>
+
+## Migration Commands
+
+### Run Migrations
+
+```bash
+php artisan migrate
+```
+
+### Run Migrations (Production)
+
+```bash
+php artisan migrate --force
+```
+
+<Warning>
+The `--force` flag is required to run migrations in production when `APP_ENV=production`.
+</Warning>
+
+### Check Migration Status
+
+```bash
+php artisan migrate:status
+```
+
+### Rollback Last Migration
+
+```bash
+php artisan migrate:rollback
+```
+
+### Rollback All Migrations
+
+```bash
+php artisan migrate:reset
+```
+
+### Rollback and Re-run All Migrations
+
+```bash
+php artisan migrate:refresh
+```
+
+### Drop All Tables and Re-run Migrations
+
+```bash
+php artisan migrate:fresh
+```
+
+<Warning>
+`migrate:fresh` will drop all tables. Use with caution in production.
+</Warning>
+
+## Database Connection Testing
+
+Test your database connection:
+
+```bash
+php artisan db:show
+```
+
+This displays:
+- Database connection name
+- Database driver
+- Database version
+- Number of open connections
+
+## Redis Configuration
+
+The application supports Redis for caching, queues, and sessions.
+
+```bash .env
+REDIS_CLIENT=phpredis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+```
+
+### Redis Configuration in config/database.php
+
+```php
+'redis' => [
+    'client' => env('REDIS_CLIENT', 'phpredis'),
+    
+    'default' => [
+        'url' => env('REDIS_URL'),
+        'host' => env('REDIS_HOST', '127.0.0.1'),
+        'username' => env('REDIS_USERNAME'),
+        'password' => env('REDIS_PASSWORD'),
+        'port' => env('REDIS_PORT', '6379'),
+        'database' => env('REDIS_DB', '0'),
+    ],
+    
+    'cache' => [
+        'url' => env('REDIS_URL'),
+        'host' => env('REDIS_HOST', '127.0.0.1'),
+        'username' => env('REDIS_USERNAME'),
+        'password' => env('REDIS_PASSWORD'),
+        'port' => env('REDIS_PORT', '6379'),
+        'database' => env('REDIS_CACHE_DB', '1'),
+    ],
+],
+```
+
+## Database URL Connection
+
+You can use a database URL instead of individual connection parameters:
+
+```bash .env
+DB_URL=mysql://user:password@localhost:3306/database
+```
+
+This is useful for platforms like Heroku that provide database credentials as a single URL.
+
+## Migrations Table
+
+Laravel tracks applied migrations in a table (default: `migrations`):
+
+```php config/database.php
+'migrations' => [
+    'table' => 'migrations',
+    'update_date_on_publish' => true,
+],
+```
+
+## Performance Optimization
+
+### Connection Pooling
+
+For high-traffic applications, consider using connection pooling:
+
+- **PgBouncer** for PostgreSQL
+- **ProxySQL** for MySQL/MariaDB
+- **Redis Sentinel** for Redis high availability
+
+### Query Optimization
+
+```bash
+# Enable query logging in local development
+php artisan db:monitor
+```
+
+<Tip>
+Use database indexes on frequently queried columns to improve performance.
+</Tip>
+
+## Troubleshooting
+
+### Connection Refused
+
+1. Verify database server is running
+2. Check host and port settings
+3. Verify firewall rules
+4. Check database credentials
+
+### Permission Denied
+
+1. Verify database user has necessary privileges
+2. Grant privileges: `GRANT ALL PRIVILEGES ON database.* TO 'user'@'localhost';`
+
+### SQLite File Not Found
+
+```bash
+touch database/database.sqlite
+chmod 664 database/database.sqlite
+```
+
+Ensure the web server user has write permissions to the `database/` directory.

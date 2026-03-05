@@ -1,0 +1,183 @@
+---
+title: "Installation"
+description: "Set up Backend App in your local environment"
+---
+
+## Requirements
+
+Before installing the application, ensure your system meets the following requirements:
+
+- **PHP**: ^8.2 or higher
+- **Composer**: Latest version
+- **Node.js**: Latest LTS version
+- **Database**: SQLite (default) or MySQL/PostgreSQL
+
+<Note>
+  This Laravel 12 application uses SQLite by default for quick setup. You can switch to MySQL or PostgreSQL by modifying the `.env` file.
+</Note>
+
+## Installation Steps
+
+<Steps>
+  <Step title="Clone the repository">
+    Clone the project repository to your local machine:
+
+    ```bash
+    git clone <your-repository-url>
+    cd <project-directory>
+    ```
+  </Step>
+
+  <Step title="Run the setup script">
+    The project includes an automated setup script that handles installation:
+
+    ```bash
+    composer run setup
+    ```
+
+    This command will:
+    - Install all PHP dependencies via Composer
+    - Create a `.env` file from `.env.example` if it doesn't exist
+    - Generate an application key
+    - Run database migrations
+    - Install Node.js dependencies
+    - Build frontend assets
+
+    <Tip>
+      The setup script is defined in `composer.json` and automates the entire installation process.
+    </Tip>
+  </Step>
+
+  <Step title="Configure environment variables">
+    Open the `.env` file and configure your application settings:
+
+    ```bash .env
+    APP_NAME=Laravel
+    APP_ENV=local
+    APP_KEY=base64:YOUR_GENERATED_KEY
+    APP_DEBUG=true
+    APP_URL=http://localhost
+
+    # Database Configuration (SQLite default)
+    DB_CONNECTION=sqlite
+
+    # For MySQL, uncomment and configure:
+    # DB_CONNECTION=mysql
+    # DB_HOST=127.0.0.1
+    # DB_PORT=3306
+    # DB_DATABASE=laravel
+    # DB_USERNAME=root
+    # DB_PASSWORD=
+
+    # Session & Cache
+    SESSION_DRIVER=database
+    CACHE_STORE=database
+    QUEUE_CONNECTION=database
+    ```
+
+    <Warning>
+      Never commit your `.env` file to version control. It contains sensitive credentials.
+    </Warning>
+  </Step>
+
+  <Step title="Create SQLite database (if using SQLite)">
+    If you're using the default SQLite configuration, create the database file:
+
+    ```bash
+    touch database/database.sqlite
+    ```
+
+    Then run migrations:
+
+    ```bash
+    php artisan migrate
+    ```
+  </Step>
+
+  <Step title="Verify installation">
+    Check that everything is set up correctly:
+
+    ```bash
+    php artisan about
+    ```
+
+    This command displays information about your application environment.
+  </Step>
+</Steps>
+
+## Database Schema
+
+The application includes the following main tables:
+
+- **institutions** - Educational institutions
+- **users** - System users (students, teachers, administrators)
+- **sections** - Class sections
+- **registrations** - Student enrollments
+- **units** - Course units
+- **topics** - Unit topics
+- **resources** - Educational resources
+- **questions** - Assessment questions
+- **response_options** - Question answer options
+- **evaluations** - Student evaluations
+- **eval_preguntas** - Evaluation questions
+
+## Alternative: Manual Installation
+
+If you prefer to install manually:
+
+<CodeGroup>
+
+```bash Composer
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+```
+
+```bash With Node.js
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+npm install
+npm run build
+```
+
+</CodeGroup>
+
+## Next Steps
+
+After installation, you're ready to:
+
+- [Start the development server](/quickstart#start-the-server)
+- [Make your first API request](/quickstart)
+- Configure Laravel Sanctum for authentication
+
+## Troubleshooting
+
+### Permission Issues
+
+If you encounter permission errors, ensure the storage and cache directories are writable:
+
+```bash
+chmod -R 775 storage bootstrap/cache
+```
+
+### Database Connection Errors
+
+For SQLite:
+- Ensure `database/database.sqlite` exists
+- Check that `DB_CONNECTION=sqlite` in your `.env`
+
+For MySQL/PostgreSQL:
+- Verify database credentials in `.env`
+- Ensure the database exists and is accessible
+- Check that the database server is running
+
+### Composer Memory Issues
+
+If Composer runs out of memory:
+
+```bash
+php -d memory_limit=-1 /usr/local/bin/composer install
+```

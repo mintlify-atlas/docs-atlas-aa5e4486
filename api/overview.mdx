@@ -1,0 +1,161 @@
+---
+title: "API Overview"
+description: "Introduction to the Backend App REST API"
+---
+
+## Base URL
+
+All API endpoints are accessible at:
+
+```
+/api
+```
+
+## Authentication
+
+<Note>
+All API endpoints use Laravel Sanctum authentication with the `auth:sanctum` middleware.
+</Note>
+
+To access protected endpoints, you must include a valid Bearer token in the Authorization header:
+
+```bash
+Authorization: Bearer {your-token}
+```
+
+## HTTP Methods
+
+The API follows RESTful conventions using standard HTTP methods:
+
+- **GET**: Retrieve resources
+- **POST**: Create new resources
+- **PUT/PATCH**: Update existing resources
+- **DELETE**: Remove resources
+
+All resource endpoints are registered as `apiResource` routes, providing the following methods:
+
+| Method | Endpoint | Action |
+|--------|----------|--------|
+| GET | `/api/{resource}` | List all resources |
+| POST | `/api/{resource}` | Create a new resource |
+| GET | `/api/{resource}/{id}` | Get a specific resource |
+| PUT/PATCH | `/api/{resource}/{id}` | Update a resource |
+| DELETE | `/api/{resource}/{id}` | Delete a resource |
+
+## Available Endpoints
+
+### Institutions & Users
+
+<CardGroup cols={2}>
+  <Card title="Institutions" icon="building" href="/api/institutions">
+    Manage educational institutions
+  </Card>
+  
+  <Card title="Users" icon="users" href="/api/users">
+    Manage user accounts and profiles
+  </Card>
+  
+  <Card title="Registrations" icon="clipboard-list" href="/api/registrations">
+    Handle student course registrations
+  </Card>
+</CardGroup>
+
+### Academic Structure
+
+<CardGroup cols={2}>
+  <Card title="Sections" icon="layer-group" href="/api/sections">
+    Manage course sections and classes
+  </Card>
+  
+  <Card title="Units" icon="book" href="/api/units">
+    Organize curriculum units
+  </Card>
+  
+  <Card title="Topics" icon="list" href="/api/topics">
+    Handle learning topics within units
+  </Card>
+</CardGroup>
+
+### Learning Resources
+
+<CardGroup cols={2}>
+  <Card title="Resources" icon="file-lines" href="/api/resources">
+    Manage learning materials and resources
+  </Card>
+  
+  <Card title="Questions" icon="circle-question" href="/api/questions">
+    Create and manage assessment questions
+  </Card>
+  
+  <Card title="Response Options" icon="square-check" href="/api/response-options">
+    Define answer choices for questions
+  </Card>
+</CardGroup>
+
+### Evaluations
+
+<CardGroup cols={2}>
+  <Card title="Evaluations" icon="clipboard-check" href="/api/evaluations">
+    Create and manage evaluations
+  </Card>
+  
+  <Card title="Evaluation Questions" icon="list-check" href="/api/eval-preguntas">
+    Link questions to evaluations
+  </Card>
+</CardGroup>
+
+## Resource Endpoints Summary
+
+The following resource endpoints are available:
+
+```bash
+# Institutions & Users
+GET|POST    /api/institutions
+GET|PUT|DELETE /api/institutions/{id}
+
+GET|POST    /api/users
+GET|PUT|DELETE /api/users/{id}
+
+GET|POST    /api/registrations
+GET|PUT|DELETE /api/registrations/{id}
+
+# Academic Structure
+GET|POST    /api/sections
+GET|PUT|DELETE /api/sections/{id}
+
+GET|POST    /api/units
+GET|PUT|DELETE /api/units/{id}
+
+GET|POST    /api/topics
+GET|PUT|DELETE /api/topics/{id}
+
+# Learning Resources
+GET|POST    /api/resources
+GET|PUT|DELETE /api/resources/{id}
+
+GET|POST    /api/questions
+GET|PUT|DELETE /api/questions/{id}
+
+GET|POST    /api/response_option
+GET|PUT|DELETE /api/response_option/{id}
+
+# Evaluations
+GET|POST    /api/evaluations
+GET|PUT|DELETE /api/evaluations/{id}
+
+GET|POST    /api/eval_preguntas
+GET|PUT|DELETE /api/eval_preguntas/{id}
+```
+
+<Tip>
+All endpoints follow the same response format. See [Response Format](/api/responses) for details.
+</Tip>
+
+## Getting Started
+
+1. Authenticate using Laravel Sanctum to obtain a Bearer token
+2. Include the token in the Authorization header for all requests
+3. Use the appropriate HTTP method and endpoint for your operation
+4. Handle responses according to the standard format
+
+For detailed information about each endpoint, see the specific resource documentation pages.

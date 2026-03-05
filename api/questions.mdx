@@ -1,0 +1,594 @@
+---
+title: 'Questions'
+description: 'Manage question bank for assessments including multiple choice, true/false, short answer, and calculation questions'
+---
+
+## Overview
+
+The Questions API manages the question bank used for creating assessments and evaluations. Questions can be of different types (multiple choice, true/false, short answer, calculation) and are associated with specific topics. Each question has configurable difficulty levels, point values, and optional explanations.
+
+## Endpoints
+
+### List All Questions
+
+Retrieve all questions in the question bank.
+
+```bash
+GET /api/questions
+```
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Preguntas listadas con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of question objects
+  
+  <Expandable title="Question Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the question
+    </ResponseField>
+    
+    <ResponseField name="tema_id" type="integer" required>
+      ID of the topic this question belongs to (foreign key to topics table)
+    </ResponseField>
+    
+    <ResponseField name="docente_id" type="integer">
+      ID of the instructor who created this question (foreign key to users table, nullable)
+    </ResponseField>
+    
+    <ResponseField name="tipo" type="enum" required>
+      Type of question. Possible values: `opcion_multiple`, `verdadero_falso`, `respuesta_corta`, `calculo`
+    </ResponseField>
+    
+    <ResponseField name="enunciado" type="text" required>
+      The question statement or prompt
+    </ResponseField>
+    
+    <ResponseField name="imagen_url" type="string">
+      URL to an image associated with the question (max 500 characters, nullable)
+    </ResponseField>
+    
+    <ResponseField name="puntaje" type="decimal">
+      Point value for this question (decimal with 5 digits, 2 decimal places, default: 1.00)
+    </ResponseField>
+    
+    <ResponseField name="nivel_dificultad" type="smallint">
+      Difficulty level of the question (default: 1)
+    </ResponseField>
+    
+    <ResponseField name="explicacion" type="text">
+      Explanation or rationale for the correct answer (nullable)
+    </ResponseField>
+    
+    <ResponseField name="activo" type="tinyint">
+      Status flag indicating if question is active (0 = inactive, 1 = active, default: 1)
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      Timestamp when the question was created
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      Timestamp when the question was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://api.example.com/api/questions \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/questions', {
+  method: 'GET',
+  headers: {
+    'Accept': 'application/json'
+  }
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::get('https://api.example.com/api/questions');
+$questions = $response->json();
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Preguntas listadas con éxito",
+  "data": [
+    {
+      "id": 1,
+      "tema_id": 8,
+      "docente_id": 12,
+      "tipo": "opcion_multiple",
+      "enunciado": "¿Cuál es la forma correcta de declarar una variable en PHP?",
+      "imagen_url": null,
+      "puntaje": "1.00",
+      "nivel_dificultad": 1,
+      "explicacion": "En PHP, las variables se declaran con el símbolo $ seguido del nombre de la variable",
+      "activo": 1,
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    },
+    {
+      "id": 2,
+      "tema_id": 8,
+      "docente_id": 12,
+      "tipo": "verdadero_falso",
+      "enunciado": "PHP es un lenguaje de programación compilado",
+      "imagen_url": null,
+      "puntaje": "0.50",
+      "nivel_dificultad": 1,
+      "explicacion": "Falso. PHP es un lenguaje interpretado, no compilado",
+      "activo": 1,
+      "created_at": "2026-03-05T10:35:00.000000Z",
+      "updated_at": "2026-03-05T10:35:00.000000Z"
+    }
+  ]
+}
+```
+
+---
+
+### Create Question
+
+Create a new question in the question bank.
+
+```bash
+POST /api/questions
+```
+
+#### Request Body
+
+<ParamField path="tema_id" type="integer" required>
+  ID of the topic this question belongs to
+</ParamField>
+
+<ParamField path="docente_id" type="integer">
+  ID of the instructor creating this question (optional)
+</ParamField>
+
+<ParamField path="tipo" type="enum" required>
+  Type of question. Must be one of: `opcion_multiple`, `verdadero_falso`, `respuesta_corta`, `calculo`
+</ParamField>
+
+<ParamField path="enunciado" type="text" required>
+  The question statement or prompt
+</ParamField>
+
+<ParamField path="imagen_url" type="string">
+  URL to an image for the question (maximum 500 characters, optional)
+</ParamField>
+
+<ParamField path="puntaje" type="decimal" default="1.00">
+  Point value for this question (format: 999.99)
+</ParamField>
+
+<ParamField path="nivel_dificultad" type="smallint" default="1">
+  Difficulty level (typically 1-5, where 1 is easiest)
+</ParamField>
+
+<ParamField path="explicacion" type="text">
+  Explanation for the correct answer (optional)
+</ParamField>
+
+<ParamField path="activo" type="tinyint" default="1">
+  Active status (0 = inactive, 1 = active)
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the question was created successfully
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Pregunta creada con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The created question object with all fields including timestamps
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.example.com/api/questions \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "tema_id": 8,
+    "docente_id": 12,
+    "tipo": "opcion_multiple",
+    "enunciado": "¿Qué operador se utiliza para concatenar cadenas en PHP?",
+    "imagen_url": null,
+    "puntaje": 1.50,
+    "nivel_dificultad": 2,
+    "explicacion": "El operador punto (.) se utiliza para concatenar strings en PHP",
+    "activo": 1
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/questions', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  body: JSON.stringify({
+    tema_id: 8,
+    docente_id: 12,
+    tipo: 'opcion_multiple',
+    enunciado: '¿Qué operador se utiliza para concatenar cadenas en PHP?',
+    imagen_url: null,
+    puntaje: 1.50,
+    nivel_dificultad: 2,
+    explicacion: 'El operador punto (.) se utiliza para concatenar strings en PHP',
+    activo: 1
+  })
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::post('https://api.example.com/api/questions', [
+    'tema_id' => 8,
+    'docente_id' => 12,
+    'tipo' => 'opcion_multiple',
+    'enunciado' => '¿Qué operador se utiliza para concatenar cadenas en PHP?',
+    'imagen_url' => null,
+    'puntaje' => 1.50,
+    'nivel_dificultad' => 2,
+    'explicacion' => 'El operador punto (.) se utiliza para concatenar strings en PHP',
+    'activo' => 1
+]);
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Pregunta creada con éxito",
+  "data": {
+    "id": 25,
+    "tema_id": 8,
+    "docente_id": 12,
+    "tipo": "opcion_multiple",
+    "enunciado": "¿Qué operador se utiliza para concatenar cadenas en PHP?",
+    "imagen_url": null,
+    "puntaje": "1.50",
+    "nivel_dificultad": 2,
+    "explicacion": "El operador punto (.) se utiliza para concatenar strings en PHP",
+    "activo": 1,
+    "created_at": "2026-03-05T14:22:00.000000Z",
+    "updated_at": "2026-03-05T14:22:00.000000Z"
+  }
+}
+```
+
+---
+
+### Get Question
+
+Retrieve a specific question by ID.
+
+```bash
+GET /api/questions/{id}
+```
+
+#### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the question
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Pregunta obtenida con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The question object with all fields
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://api.example.com/api/questions/25 \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/questions/25', {
+  method: 'GET',
+  headers: {
+    'Accept': 'application/json'
+  }
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::get('https://api.example.com/api/questions/25');
+$question = $response->json();
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Pregunta obtenida con éxito",
+  "data": {
+    "id": 25,
+    "tema_id": 8,
+    "docente_id": 12,
+    "tipo": "opcion_multiple",
+    "enunciado": "¿Qué operador se utiliza para concatenar cadenas en PHP?",
+    "imagen_url": null,
+    "puntaje": "1.50",
+    "nivel_dificultad": 2,
+    "explicacion": "El operador punto (.) se utiliza para concatenar strings en PHP",
+    "activo": 1,
+    "created_at": "2026-03-05T14:22:00.000000Z",
+    "updated_at": "2026-03-05T14:22:00.000000Z"
+  }
+}
+```
+
+---
+
+### Update Question
+
+Update an existing question.
+
+```bash
+PUT /api/questions/{id}
+```
+
+#### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the question to update
+</ParamField>
+
+#### Request Body
+
+<ParamField path="tema_id" type="integer">
+  ID of the topic this question belongs to
+</ParamField>
+
+<ParamField path="docente_id" type="integer">
+  ID of the instructor
+</ParamField>
+
+<ParamField path="tipo" type="enum">
+  Type of question: `opcion_multiple`, `verdadero_falso`, `respuesta_corta`, or `calculo`
+</ParamField>
+
+<ParamField path="enunciado" type="text">
+  The question statement
+</ParamField>
+
+<ParamField path="imagen_url" type="string">
+  URL to an associated image (maximum 500 characters)
+</ParamField>
+
+<ParamField path="puntaje" type="decimal">
+  Point value (format: 999.99)
+</ParamField>
+
+<ParamField path="nivel_dificultad" type="smallint">
+  Difficulty level
+</ParamField>
+
+<ParamField path="explicacion" type="text">
+  Explanation for the correct answer
+</ParamField>
+
+<ParamField path="activo" type="tinyint">
+  Active status (0 or 1)
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the update was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Pregunta actualizada con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The updated question object
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X PUT https://api.example.com/api/questions/25 \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "puntaje": 2.00,
+    "nivel_dificultad": 3,
+    "explicacion": "El operador punto (.) se utiliza para concatenar strings en PHP. Ejemplo: $nombre . $apellido"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/questions/25', {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  body: JSON.stringify({
+    puntaje: 2.00,
+    nivel_dificultad: 3,
+    explicacion: 'El operador punto (.) se utiliza para concatenar strings en PHP. Ejemplo: $nombre . $apellido'
+  })
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::put('https://api.example.com/api/questions/25', [
+    'puntaje' => 2.00,
+    'nivel_dificultad' => 3,
+    'explicacion' => 'El operador punto (.) se utiliza para concatenar strings en PHP. Ejemplo: $nombre . $apellido'
+]);
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Pregunta actualizada con éxito",
+  "data": {
+    "id": 25,
+    "tema_id": 8,
+    "docente_id": 12,
+    "tipo": "opcion_multiple",
+    "enunciado": "¿Qué operador se utiliza para concatenar cadenas en PHP?",
+    "imagen_url": null,
+    "puntaje": "2.00",
+    "nivel_dificultad": 3,
+    "explicacion": "El operador punto (.) se utiliza para concatenar strings en PHP. Ejemplo: $nombre . $apellido",
+    "activo": 1,
+    "created_at": "2026-03-05T14:22:00.000000Z",
+    "updated_at": "2026-03-05T15:10:00.000000Z"
+  }
+}
+```
+
+---
+
+### Delete Question
+
+Delete a question from the question bank.
+
+```bash
+DELETE /api/questions/{id}
+```
+
+#### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the question to delete
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the deletion was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Pregunta eliminada con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="null">
+  Returns null after successful deletion
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X DELETE https://api.example.com/api/questions/25 \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/questions/25', {
+  method: 'DELETE',
+  headers: {
+    'Accept': 'application/json'
+  }
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::delete('https://api.example.com/api/questions/25');
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Pregunta eliminada con éxito",
+  "data": null
+}
+```
+
+---
+
+## Foreign Key Relationships
+
+### Topic Relationship
+- **Field**: `tema_id`
+- **References**: `topics.id`
+- **On Delete**: CASCADE (deleting a topic will delete all associated questions)
+
+### Instructor Relationship
+- **Field**: `docente_id`
+- **References**: `users.id`
+- **On Delete**: SET NULL (deleting a user will set the field to null, preserving the question)
+
+---
+
+## Question Types
+
+The `tipo` field supports four question types:
+
+- **`opcion_multiple`**: Multiple choice questions with several answer options
+- **`verdadero_falso`**: True/false questions
+- **`respuesta_corta`**: Short answer questions requiring text input
+- **`calculo`**: Calculation questions requiring numeric answers
+
+---
+
+## Notes
+
+- Questions use timestamps (`created_at`, `updated_at`) for audit tracking
+- The `puntaje` field allows decimal values for flexible grading (e.g., 1.50, 2.00)
+- Difficulty levels typically range from 1 (easiest) to 5 (hardest)
+- Questions can be soft-deleted by setting `activo` to 0
+- The `imagen_url` field allows adding visual elements to questions
+- Each question must be associated with a valid topic via `tema_id`
+- The `explicacion` field is useful for providing feedback after answering

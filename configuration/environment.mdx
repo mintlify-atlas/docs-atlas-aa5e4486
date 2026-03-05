@@ -1,0 +1,548 @@
+---
+title: "Environment Configuration"
+description: "Configure your Backend App environment variables"
+---
+
+Environment variables control your application's behavior across different environments. All variables are defined in the `.env` file at the root of your project.
+
+## Getting Started
+
+Copy the example environment file to create your own:
+
+```bash
+cp .env.example .env
+```
+
+Then generate an application key:
+
+```bash
+php artisan key:generate
+```
+
+## Environment Variables
+
+<Accordion title="Application Settings">
+
+### APP_NAME
+**Default:** `Laravel`
+
+The name of your application. Used in email notifications and other user-facing messages.
+
+```bash
+APP_NAME=Laravel
+```
+
+### APP_ENV
+**Default:** `local`
+
+The application environment. Common values:
+- `local` - Development environment
+- `staging` - Staging environment
+- `production` - Production environment
+
+```bash
+APP_ENV=local
+```
+
+<Warning>
+Always set `APP_ENV=production` in production to disable debugging features.
+</Warning>
+
+### APP_KEY
+**Default:** Empty (must be generated)
+
+The application encryption key. This is used for encrypting session data, cookies, and other sensitive information.
+
+```bash
+APP_KEY=
+```
+
+<Note>
+Generate this key using `php artisan key:generate` during setup.
+</Note>
+
+### APP_DEBUG
+**Default:** `true`
+
+Enables or disables debug mode. When enabled, detailed error messages are displayed.
+
+```bash
+APP_DEBUG=true
+```
+
+<Warning>
+Always set `APP_DEBUG=false` in production to prevent sensitive information disclosure.
+</Warning>
+
+### APP_URL
+**Default:** `http://localhost`
+
+The base URL of your application. Used for generating links and URLs.
+
+```bash
+APP_URL=http://localhost
+```
+
+### APP_LOCALE
+**Default:** `en`
+
+The default locale for your application.
+
+```bash
+APP_LOCALE=en
+```
+
+### APP_FALLBACK_LOCALE
+**Default:** `en`
+
+The fallback locale when a translation is not available in the current locale.
+
+```bash
+APP_FALLBACK_LOCALE=en
+```
+
+### APP_FAKER_LOCALE
+**Default:** `en_US`
+
+The locale used by Faker for generating fake data in tests and seeders.
+
+```bash
+APP_FAKER_LOCALE=en_US
+```
+
+### APP_MAINTENANCE_DRIVER
+**Default:** `file`
+
+The driver for storing maintenance mode state. Options: `file`, `cache`.
+
+```bash
+APP_MAINTENANCE_DRIVER=file
+# APP_MAINTENANCE_STORE=database
+```
+
+### BCRYPT_ROUNDS
+**Default:** `12`
+
+The number of rounds to use for bcrypt hashing. Higher values increase security but require more processing time.
+
+```bash
+BCRYPT_ROUNDS=12
+```
+
+</Accordion>
+
+<Accordion title="Database Configuration">
+
+### DB_CONNECTION
+**Default:** `sqlite`
+
+The default database connection. Supported values: `sqlite`, `mysql`, `mariadb`, `pgsql`, `sqlsrv`.
+
+```bash
+DB_CONNECTION=sqlite
+```
+
+<Note>
+The default SQLite connection works out of the box without additional configuration.
+</Note>
+
+### MySQL/PostgreSQL Configuration
+
+These variables are commented out by default when using SQLite. Uncomment and configure them when switching to MySQL or PostgreSQL:
+
+```bash
+# DB_HOST=127.0.0.1
+# DB_PORT=3306
+# DB_DATABASE=laravel
+# DB_USERNAME=root
+# DB_PASSWORD=
+```
+
+**DB_HOST:** Database server hostname or IP address
+
+**DB_PORT:** Database server port (3306 for MySQL, 5432 for PostgreSQL)
+
+**DB_DATABASE:** Database name
+
+**DB_USERNAME:** Database username
+
+**DB_PASSWORD:** Database password
+
+</Accordion>
+
+<Accordion title="Caching & Sessions">
+
+### CACHE_STORE
+**Default:** `database`
+
+The cache driver to use. Options: `database`, `file`, `memcached`, `redis`, `array`.
+
+```bash
+CACHE_STORE=database
+```
+
+### CACHE_PREFIX
+**Default:** Empty
+
+A prefix for cache keys to avoid collisions with other applications.
+
+```bash
+# CACHE_PREFIX=
+```
+
+### SESSION_DRIVER
+**Default:** `database`
+
+The session storage driver. Options: `file`, `cookie`, `database`, `memcached`, `redis`, `array`.
+
+```bash
+SESSION_DRIVER=database
+```
+
+### SESSION_LIFETIME
+**Default:** `120`
+
+Session lifetime in minutes.
+
+```bash
+SESSION_LIFETIME=120
+```
+
+### SESSION_ENCRYPT
+**Default:** `false`
+
+Whether to encrypt session data.
+
+```bash
+SESSION_ENCRYPT=false
+```
+
+### SESSION_PATH
+**Default:** `/`
+
+The session cookie path.
+
+```bash
+SESSION_PATH=/
+```
+
+### SESSION_DOMAIN
+**Default:** `null`
+
+The session cookie domain.
+
+```bash
+SESSION_DOMAIN=null
+```
+
+</Accordion>
+
+<Accordion title="Queue & Job Processing">
+
+### QUEUE_CONNECTION
+**Default:** `database`
+
+The queue driver to use. Options: `sync`, `database`, `redis`, `sqs`, `beanstalkd`.
+
+```bash
+QUEUE_CONNECTION=database
+```
+
+<Tip>
+Use `sync` for local development to process jobs immediately. Use `database` or `redis` for production.
+</Tip>
+
+</Accordion>
+
+<Accordion title="Logging">
+
+### LOG_CHANNEL
+**Default:** `stack`
+
+The default log channel. Options: `stack`, `single`, `daily`, `slack`, `syslog`, `errorlog`.
+
+```bash
+LOG_CHANNEL=stack
+```
+
+### LOG_STACK
+**Default:** `single`
+
+The channels to include when using the `stack` channel.
+
+```bash
+LOG_STACK=single
+```
+
+### LOG_DEPRECATIONS_CHANNEL
+**Default:** `null`
+
+The channel for deprecation warnings.
+
+```bash
+LOG_DEPRECATIONS_CHANNEL=null
+```
+
+### LOG_LEVEL
+**Default:** `debug`
+
+The minimum log level. Options: `debug`, `info`, `notice`, `warning`, `error`, `critical`, `alert`, `emergency`.
+
+```bash
+LOG_LEVEL=debug
+```
+
+</Accordion>
+
+<Accordion title="Mail Configuration">
+
+### MAIL_MAILER
+**Default:** `log`
+
+The mail driver to use. Options: `smtp`, `sendmail`, `mailgun`, `ses`, `postmark`, `log`, `array`.
+
+```bash
+MAIL_MAILER=log
+```
+
+<Note>
+The `log` driver writes emails to the log file instead of sending them. Perfect for local development.
+</Note>
+
+### MAIL_HOST
+**Default:** `127.0.0.1`
+
+The SMTP server hostname.
+
+```bash
+MAIL_HOST=127.0.0.1
+```
+
+### MAIL_PORT
+**Default:** `2525`
+
+The SMTP server port.
+
+```bash
+MAIL_PORT=2525
+```
+
+### MAIL_USERNAME
+**Default:** `null`
+
+The SMTP username for authentication.
+
+```bash
+MAIL_USERNAME=null
+```
+
+### MAIL_PASSWORD
+**Default:** `null`
+
+The SMTP password for authentication.
+
+```bash
+MAIL_PASSWORD=null
+```
+
+### MAIL_ENCRYPTION
+**Default:** Not set
+
+The encryption method. Options: `tls`, `ssl`, or leave empty for no encryption.
+
+### MAIL_FROM_ADDRESS
+**Default:** `hello@example.com`
+
+The default sender email address.
+
+```bash
+MAIL_FROM_ADDRESS="hello@example.com"
+```
+
+### MAIL_FROM_NAME
+**Default:** `${APP_NAME}`
+
+The default sender name. Uses the `APP_NAME` value by default.
+
+```bash
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+</Accordion>
+
+<Accordion title="Redis Configuration">
+
+### REDIS_CLIENT
+**Default:** `phpredis`
+
+The Redis client to use. Options: `phpredis`, `predis`.
+
+```bash
+REDIS_CLIENT=phpredis
+```
+
+### REDIS_HOST
+**Default:** `127.0.0.1`
+
+The Redis server hostname.
+
+```bash
+REDIS_HOST=127.0.0.1
+```
+
+### REDIS_PASSWORD
+**Default:** `null`
+
+The Redis server password.
+
+```bash
+REDIS_PASSWORD=null
+```
+
+### REDIS_PORT
+**Default:** `6379`
+
+The Redis server port.
+
+```bash
+REDIS_PORT=6379
+```
+
+</Accordion>
+
+<Accordion title="Broadcasting & Filesystem">
+
+### BROADCAST_CONNECTION
+**Default:** `log`
+
+The broadcast driver. Options: `pusher`, `redis`, `log`, `null`.
+
+```bash
+BROADCAST_CONNECTION=log
+```
+
+### FILESYSTEM_DISK
+**Default:** `local`
+
+The default filesystem disk. Options: `local`, `public`, `s3`, `ftp`.
+
+```bash
+FILESYSTEM_DISK=local
+```
+
+</Accordion>
+
+<Accordion title="AWS Configuration">
+
+Used for S3 file storage, SES email, and other AWS services.
+
+```bash
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+```
+
+**AWS_ACCESS_KEY_ID:** Your AWS access key
+
+**AWS_SECRET_ACCESS_KEY:** Your AWS secret key
+
+**AWS_DEFAULT_REGION:** AWS region (e.g., `us-east-1`, `eu-west-1`)
+
+**AWS_BUCKET:** S3 bucket name
+
+**AWS_USE_PATH_STYLE_ENDPOINT:** Use path-style endpoint for S3 (for MinIO compatibility)
+
+</Accordion>
+
+<Accordion title="Development Tools">
+
+### PHP_CLI_SERVER_WORKERS
+**Default:** Commented out
+
+The number of workers for the PHP built-in server.
+
+```bash
+# PHP_CLI_SERVER_WORKERS=4
+```
+
+### VITE_APP_NAME
+**Default:** `${APP_NAME}`
+
+Makes the app name available to Vite for frontend builds.
+
+```bash
+VITE_APP_NAME="${APP_NAME}"
+```
+
+</Accordion>
+
+## Environment-Specific Configuration
+
+<CodeGroup>
+
+```bash Local Development
+APP_NAME=Laravel
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost
+
+DB_CONNECTION=sqlite
+
+MAIL_MAILER=log
+QUEUE_CONNECTION=sync
+```
+
+```bash Production
+APP_NAME="Your App Name"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://yourapp.com
+
+DB_CONNECTION=mysql
+DB_HOST=your-db-host
+DB_DATABASE=your-database
+DB_USERNAME=your-username
+DB_PASSWORD=your-secure-password
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.example.com
+MAIL_PORT=587
+MAIL_USERNAME=your-smtp-user
+MAIL_PASSWORD=your-smtp-password
+MAIL_ENCRYPTION=tls
+
+QUEUE_CONNECTION=database
+CACHE_STORE=redis
+SESSION_DRIVER=redis
+```
+
+</CodeGroup>
+
+## Security Best Practices
+
+<Warning>
+**Never commit your `.env` file to version control.** It contains sensitive credentials and should remain private.
+</Warning>
+
+1. Always generate a unique `APP_KEY` for each environment
+2. Set `APP_DEBUG=false` in production
+3. Set `APP_ENV=production` in production
+4. Use strong database passwords
+5. Keep your `.env` file permissions restricted (readable only by the application user)
+6. Use environment-specific values for sensitive data
+7. Consider using a secrets management service for production environments
+
+## Accessing Environment Variables
+
+In your code, access environment variables using the `env()` helper:
+
+```php
+$appName = env('APP_NAME', 'Laravel');
+$debug = env('APP_DEBUG', false);
+```
+
+<Tip>
+The second parameter is the default value if the environment variable is not set.
+</Tip>

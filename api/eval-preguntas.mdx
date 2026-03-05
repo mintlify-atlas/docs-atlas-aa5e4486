@@ -1,0 +1,467 @@
+---
+title: 'Evaluation Questions'
+description: 'Manage the assignment of questions to evaluations with custom ordering and point values'
+---
+
+## Overview
+
+The Evaluation Questions API manages the relationship between evaluations and questions. This pivot table allows you to assign multiple questions to an evaluation, specify their display order, and set individual point values for each question.
+
+Each evaluation-question pairing is unique, enforced by a database constraint on `evaluations_id` and `questions_id`.
+
+---
+
+## List All Evaluation Questions
+
+<Card title="GET /api/eval_preguntas" icon="list">
+  Retrieve all evaluation-question assignments with related data.
+</Card>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Preguntas de evaluación listadas con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of evaluation question objects with eager-loaded relationships
+  
+  <Expandable title="Evaluation Question Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for this evaluation-question assignment
+    </ResponseField>
+    
+    <ResponseField name="evaluations_id" type="integer">
+      ID of the evaluation (references evaluations table)
+    </ResponseField>
+    
+    <ResponseField name="questions_id" type="integer">
+      ID of the question (references questions table)
+    </ResponseField>
+    
+    <ResponseField name="orden" type="integer" required={false}>
+      Display order of this question within the evaluation (nullable)
+    </ResponseField>
+    
+    <ResponseField name="puntaje" type="decimal" required={false}>
+      Point value for this specific question (5 digits total, 2 decimal places)
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      Timestamp when the assignment was created
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      Timestamp when the assignment was last updated
+    </ResponseField>
+    
+    <ResponseField name="evaluacion" type="object">
+      Full evaluation object (eager loaded)
+    </ResponseField>
+    
+    <ResponseField name="pregunta" type="object">
+      Full question object (eager loaded)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example Request
+
+```bash
+curl -X GET https://api.example.com/api/eval_preguntas \
+  -H "Accept: application/json"
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Preguntas de evaluación listadas con éxito",
+  "data": [
+    {
+      "id": 1,
+      "evaluations_id": 1,
+      "questions_id": 15,
+      "orden": 1,
+      "puntaje": 2.50,
+      "created_at": "2026-03-05T16:45:00.000000Z",
+      "updated_at": "2026-03-05T16:45:00.000000Z",
+      "evaluacion": {
+        "id": 1,
+        "titulo": "Examen Final de Álgebra",
+        "tipo": "sumativa",
+        "puntaje_max": 20.00
+      },
+      "pregunta": {
+        "id": 15,
+        "texto": "¿Cuál es la solución del sistema de ecuaciones?",
+        "tipo": "multiple_choice"
+      }
+    },
+    {
+      "id": 2,
+      "evaluations_id": 1,
+      "questions_id": 16,
+      "orden": 2,
+      "puntaje": 3.00,
+      "created_at": "2026-03-05T16:46:00.000000Z",
+      "updated_at": "2026-03-05T16:46:00.000000Z",
+      "evaluacion": {
+        "id": 1,
+        "titulo": "Examen Final de Álgebra",
+        "tipo": "sumativa",
+        "puntaje_max": 20.00
+      },
+      "pregunta": {
+        "id": 16,
+        "texto": "Resuelve la ecuación cuadrática",
+        "tipo": "open_ended"
+      }
+    }
+  ]
+}
+```
+
+---
+
+## Assign Question to Evaluation
+
+<Card title="POST /api/eval_preguntas" icon="plus">
+  Assign a question to an evaluation with optional ordering and point value.
+</Card>
+
+### Request Body
+
+<ParamField name="evaluations_id" type="integer" required>
+  ID of the evaluation to assign the question to
+</ParamField>
+
+<ParamField name="questions_id" type="integer" required>
+  ID of the question to assign
+</ParamField>
+
+<ParamField name="orden" type="integer">
+  Display order of the question within the evaluation
+</ParamField>
+
+<ParamField name="puntaje" type="decimal">
+  Point value for this question (5 digits total, 2 decimal places)
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Pregunta asignada a evaluación con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The newly created evaluation-question assignment
+</ResponseField>
+
+### Example Request
+
+```bash
+curl -X POST https://api.example.com/api/eval_preguntas \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "evaluations_id": 1,
+    "questions_id": 17,
+    "orden": 3,
+    "puntaje": 4.00
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Pregunta asignada a evaluación con éxito",
+  "data": {
+    "id": 3,
+    "evaluations_id": 1,
+    "questions_id": 17,
+    "orden": 3,
+    "puntaje": 4.00,
+    "created_at": "2026-03-05T17:20:00.000000Z",
+    "updated_at": "2026-03-05T17:20:00.000000Z"
+  }
+}
+```
+
+### Important Notes
+
+<Note>
+  **Unique Constraint**: Each evaluation-question pair must be unique. You cannot assign the same question to an evaluation more than once. Attempting to do so will result in a database constraint violation.
+</Note>
+
+---
+
+## Get Evaluation Question
+
+<Card title="GET /api/eval_preguntas/:id" icon="file">
+  Retrieve a specific evaluation-question assignment by ID.
+</Card>
+
+### Path Parameters
+
+<ParamField name="id" type="integer" required>
+  The ID of the evaluation-question assignment to retrieve
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Pregunta de evaluación obtenida con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The evaluation-question object with eager-loaded relationships
+</ResponseField>
+
+### Example Request
+
+```bash
+curl -X GET https://api.example.com/api/eval_preguntas/1 \
+  -H "Accept: application/json"
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Pregunta de evaluación obtenida con éxito",
+  "data": {
+    "id": 1,
+    "evaluations_id": 1,
+    "questions_id": 15,
+    "orden": 1,
+    "puntaje": 2.50,
+    "created_at": "2026-03-05T16:45:00.000000Z",
+    "updated_at": "2026-03-05T16:45:00.000000Z",
+    "evaluacion": {
+      "id": 1,
+      "docente_id": 5,
+      "section_id": 12,
+      "topic_id": 3,
+      "titulo": "Examen Final de Álgebra",
+      "descripcion": "Evaluación sumativa que cubre todos los temas del semestre",
+      "tipo": "sumativa",
+      "fecha_inicio": "2026-03-15 08:00:00",
+      "fecha_fin": "2026-03-15 10:00:00",
+      "duracion_min": 120,
+      "puntaje_max": 20.00,
+      "puntaje_aprobacion": 11.00,
+      "intentos_max": 1,
+      "orden_aleatorio": 1,
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    },
+    "pregunta": {
+      "id": 15,
+      "texto": "¿Cuál es la solución del sistema de ecuaciones?",
+      "tipo": "multiple_choice",
+      "dificultad": "media",
+      "created_at": "2026-03-01T09:15:00.000000Z",
+      "updated_at": "2026-03-01T09:15:00.000000Z"
+    }
+  }
+}
+```
+
+---
+
+## Update Evaluation Question
+
+<Card title="PUT /api/eval_preguntas/:id" icon="pen">
+  Update an existing evaluation-question assignment.
+</Card>
+
+### Path Parameters
+
+<ParamField name="id" type="integer" required>
+  The ID of the evaluation-question assignment to update
+</ParamField>
+
+### Request Body
+
+You can update any of the fields except the unique constraint fields (evaluations_id + questions_id). Include only the fields you want to change.
+
+<ParamField name="orden" type="integer">
+  New display order for the question
+</ParamField>
+
+<ParamField name="puntaje" type="decimal">
+  New point value for the question
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Pregunta de evaluación actualizada con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The updated evaluation-question object
+</ResponseField>
+
+### Example Request
+
+```bash
+curl -X PUT https://api.example.com/api/eval_preguntas/1 \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "orden": 5,
+    "puntaje": 3.50
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Pregunta de evaluación actualizada con éxito",
+  "data": {
+    "id": 1,
+    "evaluations_id": 1,
+    "questions_id": 15,
+    "orden": 5,
+    "puntaje": 3.50,
+    "created_at": "2026-03-05T16:45:00.000000Z",
+    "updated_at": "2026-03-05T18:30:00.000000Z"
+  }
+}
+```
+
+---
+
+## Delete Evaluation Question
+
+<Card title="DELETE /api/eval_preguntas/:id" icon="trash">
+  Remove a question from an evaluation.
+</Card>
+
+### Path Parameters
+
+<ParamField name="id" type="integer" required>
+  The ID of the evaluation-question assignment to delete
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Pregunta de evaluación eliminada con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="null">
+  Returns null on successful deletion
+</ResponseField>
+
+### Example Request
+
+```bash
+curl -X DELETE https://api.example.com/api/eval_preguntas/1 \
+  -H "Accept: application/json"
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Pregunta de evaluación eliminada con éxito",
+  "data": null
+}
+```
+
+---
+
+## Database Relationships
+
+### Foreign Keys
+
+- **evaluations_id**: References `evaluations.id` (cascade delete)
+- **questions_id**: References `questions.id` (cascade delete)
+
+### Constraints
+
+- **Unique Constraint**: The combination of `evaluations_id` and `questions_id` must be unique. A question can only be assigned to an evaluation once.
+
+### Model Relationships
+
+The `EvalPregunta` model includes the following Eloquent relationships:
+
+```php
+public function evaluacion()
+{
+    return $this->belongsTo(Evaluations::class, 'evaluations_id');
+}
+
+public function pregunta()
+{
+    return $this->belongsTo(Questions::class, 'questions_id');
+}
+```
+
+### Cascade Behavior
+
+<Warning>
+  **Cascade Deletes**: When an evaluation or question is deleted, all associated `eval_preguntas` records are automatically deleted.
+</Warning>
+
+---
+
+## Use Cases
+
+### Building an Evaluation
+
+1. Create an evaluation using the [Evaluations API](/api/evaluations)
+2. Assign multiple questions using POST `/api/eval_preguntas`
+3. Set appropriate point values that sum to the evaluation's `puntaje_max`
+4. Order questions logically using the `orden` field
+
+### Reordering Questions
+
+To change the order of questions in an evaluation, update each `eval_pregunta` record with the new `orden` value:
+
+```bash
+# Move question to first position
+curl -X PUT https://api.example.com/api/eval_preguntas/3 \
+  -H "Content-Type: application/json" \
+  -d '{"orden": 1}'
+```
+
+### Adjusting Point Values
+
+Modify the `puntaje` field to adjust how much each question is worth:
+
+```bash
+curl -X PUT https://api.example.com/api/eval_preguntas/2 \
+  -H "Content-Type: application/json" \
+  -d '{"puntaje": 5.00}'
+```

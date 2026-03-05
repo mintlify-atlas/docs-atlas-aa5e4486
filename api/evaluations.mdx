@@ -1,0 +1,516 @@
+---
+title: 'Evaluations'
+description: 'Manage evaluations including tasks, practices, and different types of assessments assigned to sections'
+---
+
+## Overview
+
+The Evaluations API allows you to create and manage different types of assessments for students. Evaluations can be assigned to sections and optionally linked to topics. Each evaluation has configurable start/end dates, duration, scoring, and attempt limits.
+
+### Evaluation Types
+
+- `tarea` - Homework assignment
+- `practica` - Practice exercise
+- `diagnostico` - Diagnostic assessment
+- `formativa` - Formative assessment
+- `sumativa` - Summative assessment
+
+---
+
+## List All Evaluations
+
+<Card title="GET /api/evaluations" icon="list">
+  Retrieve a list of all evaluations.
+</Card>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Evaluaciones listadas con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of evaluation objects
+  
+  <Expandable title="Evaluation Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the evaluation
+    </ResponseField>
+    
+    <ResponseField name="docente_id" type="integer">
+      ID of the teacher who created the evaluation (references users table)
+    </ResponseField>
+    
+    <ResponseField name="section_id" type="integer">
+      ID of the section this evaluation is assigned to
+    </ResponseField>
+    
+    <ResponseField name="topic_id" type="integer" required={false}>
+      ID of the associated topic (optional)
+    </ResponseField>
+    
+    <ResponseField name="titulo" type="string">
+      Evaluation title (max 200 characters)
+    </ResponseField>
+    
+    <ResponseField name="descripcion" type="string" required={false}>
+      Detailed description of the evaluation
+    </ResponseField>
+    
+    <ResponseField name="tipo" type="enum">
+      Type of evaluation: `tarea`, `practica`, `diagnostico`, `formativa`, or `sumativa`
+    </ResponseField>
+    
+    <ResponseField name="fecha_inicio" type="datetime">
+      Start date and time when the evaluation becomes available
+    </ResponseField>
+    
+    <ResponseField name="fecha_fin" type="datetime">
+      End date and time when the evaluation closes
+    </ResponseField>
+    
+    <ResponseField name="duracion_min" type="integer" required={false}>
+      Time limit in minutes for completing the evaluation
+    </ResponseField>
+    
+    <ResponseField name="puntaje_max" type="decimal">
+      Maximum score possible (default: 20.00)
+    </ResponseField>
+    
+    <ResponseField name="puntaje_aprobacion" type="decimal">
+      Minimum passing score (default: 11.00)
+    </ResponseField>
+    
+    <ResponseField name="intentos_max" type="integer">
+      Maximum number of attempts allowed (default: 1)
+    </ResponseField>
+    
+    <ResponseField name="orden_aleatorio" type="boolean">
+      Whether questions should be randomized (0 = false, 1 = true)
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      Timestamp when the evaluation was created
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      Timestamp when the evaluation was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example Request
+
+```bash
+curl -X GET https://api.example.com/api/evaluations \
+  -H "Accept: application/json"
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Evaluaciones listadas con éxito",
+  "data": [
+    {
+      "id": 1,
+      "docente_id": 5,
+      "section_id": 12,
+      "topic_id": 3,
+      "titulo": "Examen Final de Álgebra",
+      "descripcion": "Evaluación sumativa que cubre todos los temas del semestre",
+      "tipo": "sumativa",
+      "fecha_inicio": "2026-03-15 08:00:00",
+      "fecha_fin": "2026-03-15 10:00:00",
+      "duracion_min": 120,
+      "puntaje_max": 20.00,
+      "puntaje_aprobacion": 11.00,
+      "intentos_max": 1,
+      "orden_aleatorio": 1,
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    }
+  ]
+}
+```
+
+---
+
+## Create Evaluation
+
+<Card title="POST /api/evaluations" icon="plus">
+  Create a new evaluation.
+</Card>
+
+### Request Body
+
+<ParamField name="docente_id" type="integer" required>
+  ID of the teacher creating the evaluation
+</ParamField>
+
+<ParamField name="section_id" type="integer" required>
+  ID of the section to assign this evaluation to
+</ParamField>
+
+<ParamField name="topic_id" type="integer">
+  ID of the topic this evaluation covers (optional)
+</ParamField>
+
+<ParamField name="titulo" type="string" required>
+  Title of the evaluation (max 200 characters)
+</ParamField>
+
+<ParamField name="descripcion" type="string">
+  Detailed description of the evaluation
+</ParamField>
+
+<ParamField name="tipo" type="enum" required>
+  Type of evaluation
+  - `tarea` - Homework
+  - `practica` - Practice
+  - `diagnostico` - Diagnostic
+  - `formativa` - Formative
+  - `sumativa` - Summative
+</ParamField>
+
+<ParamField name="fecha_inicio" type="datetime" required>
+  Start date and time (format: YYYY-MM-DD HH:MM:SS)
+</ParamField>
+
+<ParamField name="fecha_fin" type="datetime" required>
+  End date and time (format: YYYY-MM-DD HH:MM:SS)
+</ParamField>
+
+<ParamField name="duracion_min" type="integer">
+  Time limit in minutes
+</ParamField>
+
+<ParamField name="puntaje_max" type="decimal" default="20.00">
+  Maximum score (5 digits total, 2 decimal places)
+</ParamField>
+
+<ParamField name="puntaje_aprobacion" type="decimal" default="11.00">
+  Minimum passing score (5 digits total, 2 decimal places)
+</ParamField>
+
+<ParamField name="intentos_max" type="integer" default="1">
+  Maximum number of attempts allowed
+</ParamField>
+
+<ParamField name="orden_aleatorio" type="boolean" default="0">
+  Randomize question order (0 = no, 1 = yes)
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Evaluación creada con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The newly created evaluation object
+</ResponseField>
+
+### Example Request
+
+```bash
+curl -X POST https://api.example.com/api/evaluations \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "docente_id": 5,
+    "section_id": 12,
+    "topic_id": 3,
+    "titulo": "Práctica de Ecuaciones Lineales",
+    "descripcion": "Ejercicios prácticos sobre sistemas de ecuaciones",
+    "tipo": "practica",
+    "fecha_inicio": "2026-03-20 14:00:00",
+    "fecha_fin": "2026-03-22 23:59:59",
+    "duracion_min": 60,
+    "puntaje_max": 20.00,
+    "puntaje_aprobacion": 11.00,
+    "intentos_max": 2,
+    "orden_aleatorio": 0
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Evaluación creada con éxito",
+  "data": {
+    "id": 2,
+    "docente_id": 5,
+    "section_id": 12,
+    "topic_id": 3,
+    "titulo": "Práctica de Ecuaciones Lineales",
+    "descripcion": "Ejercicios prácticos sobre sistemas de ecuaciones",
+    "tipo": "practica",
+    "fecha_inicio": "2026-03-20 14:00:00",
+    "fecha_fin": "2026-03-22 23:59:59",
+    "duracion_min": 60,
+    "puntaje_max": 20.00,
+    "puntaje_aprobacion": 11.00,
+    "intentos_max": 2,
+    "orden_aleatorio": 0,
+    "created_at": "2026-03-05T14:25:00.000000Z",
+    "updated_at": "2026-03-05T14:25:00.000000Z"
+  }
+}
+```
+
+---
+
+## Get Evaluation
+
+<Card title="GET /api/evaluations/:id" icon="file">
+  Retrieve a specific evaluation by ID.
+</Card>
+
+### Path Parameters
+
+<ParamField name="id" type="integer" required>
+  The ID of the evaluation to retrieve
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Evaluación obtenida con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The evaluation object (see structure in List All Evaluations)
+</ResponseField>
+
+### Example Request
+
+```bash
+curl -X GET https://api.example.com/api/evaluations/1 \
+  -H "Accept: application/json"
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Evaluación obtenida con éxito",
+  "data": {
+    "id": 1,
+    "docente_id": 5,
+    "section_id": 12,
+    "topic_id": 3,
+    "titulo": "Examen Final de Álgebra",
+    "descripcion": "Evaluación sumativa que cubre todos los temas del semestre",
+    "tipo": "sumativa",
+    "fecha_inicio": "2026-03-15 08:00:00",
+    "fecha_fin": "2026-03-15 10:00:00",
+    "duracion_min": 120,
+    "puntaje_max": 20.00,
+    "puntaje_aprobacion": 11.00,
+    "intentos_max": 1,
+    "orden_aleatorio": 1,
+    "created_at": "2026-03-05T10:30:00.000000Z",
+    "updated_at": "2026-03-05T10:30:00.000000Z"
+  }
+}
+```
+
+---
+
+## Update Evaluation
+
+<Card title="PUT /api/evaluations/:id" icon="pen">
+  Update an existing evaluation.
+</Card>
+
+### Path Parameters
+
+<ParamField name="id" type="integer" required>
+  The ID of the evaluation to update
+</ParamField>
+
+### Request Body
+
+All fields from the Create Evaluation endpoint can be updated. Include only the fields you want to change.
+
+<ParamField name="docente_id" type="integer">
+  ID of the teacher
+</ParamField>
+
+<ParamField name="section_id" type="integer">
+  ID of the section
+</ParamField>
+
+<ParamField name="topic_id" type="integer">
+  ID of the topic (can be set to null)
+</ParamField>
+
+<ParamField name="titulo" type="string">
+  Evaluation title
+</ParamField>
+
+<ParamField name="descripcion" type="string">
+  Evaluation description
+</ParamField>
+
+<ParamField name="tipo" type="enum">
+  Evaluation type
+</ParamField>
+
+<ParamField name="fecha_inicio" type="datetime">
+  Start date and time
+</ParamField>
+
+<ParamField name="fecha_fin" type="datetime">
+  End date and time
+</ParamField>
+
+<ParamField name="duracion_min" type="integer">
+  Time limit in minutes
+</ParamField>
+
+<ParamField name="puntaje_max" type="decimal">
+  Maximum score
+</ParamField>
+
+<ParamField name="puntaje_aprobacion" type="decimal">
+  Minimum passing score
+</ParamField>
+
+<ParamField name="intentos_max" type="integer">
+  Maximum attempts
+</ParamField>
+
+<ParamField name="orden_aleatorio" type="boolean">
+  Randomize questions
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Evaluación actualizada con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The updated evaluation object
+</ResponseField>
+
+### Example Request
+
+```bash
+curl -X PUT https://api.example.com/api/evaluations/2 \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "intentos_max": 3,
+    "fecha_fin": "2026-03-25 23:59:59"
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Evaluación actualizada con éxito",
+  "data": {
+    "id": 2,
+    "docente_id": 5,
+    "section_id": 12,
+    "topic_id": 3,
+    "titulo": "Práctica de Ecuaciones Lineales",
+    "descripcion": "Ejercicios prácticos sobre sistemas de ecuaciones",
+    "tipo": "practica",
+    "fecha_inicio": "2026-03-20 14:00:00",
+    "fecha_fin": "2026-03-25 23:59:59",
+    "duracion_min": 60,
+    "puntaje_max": 20.00,
+    "puntaje_aprobacion": 11.00,
+    "intentos_max": 3,
+    "orden_aleatorio": 0,
+    "created_at": "2026-03-05T14:25:00.000000Z",
+    "updated_at": "2026-03-05T15:10:00.000000Z"
+  }
+}
+```
+
+---
+
+## Delete Evaluation
+
+<Card title="DELETE /api/evaluations/:id" icon="trash">
+  Delete an evaluation. This will also cascade delete all associated evaluation questions.
+</Card>
+
+### Path Parameters
+
+<ParamField name="id" type="integer" required>
+  The ID of the evaluation to delete
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Evaluación eliminada con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="null">
+  Returns null on successful deletion
+</ResponseField>
+
+### Example Request
+
+```bash
+curl -X DELETE https://api.example.com/api/evaluations/2 \
+  -H "Accept: application/json"
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Evaluación eliminada con éxito",
+  "data": null
+}
+```
+
+---
+
+## Database Relationships
+
+### Foreign Keys
+
+- **docente_id**: References `users.id` (cascade delete)
+- **section_id**: References `sections.id` (cascade delete)
+- **topic_id**: References `topics.id` (set null on delete)
+
+### Related Resources
+
+- See [Evaluation Questions](/api/eval-preguntas) to assign questions to evaluations
+- Questions are linked through the `eval_preguntas` pivot table

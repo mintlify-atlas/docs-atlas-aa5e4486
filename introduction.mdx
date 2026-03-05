@@ -1,0 +1,80 @@
+---
+title: Introduction
+description: A Laravel-based REST API service for managing educational institutions, users, evaluations, and learning resources
+---
+
+# Welcome to Backend App
+
+Backend App is a comprehensive REST API service built with Laravel 12 that provides a complete solution for managing educational institutions, academic structures, and evaluation systems.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Institution Management" icon="building" href="/api/institutions">
+    Manage educational institutions with complete CRUD operations
+  </Card>
+  <Card title="User & Registration" icon="users" href="/api/users">
+    Handle user accounts and section registrations
+  </Card>
+  <Card title="Academic Structure" icon="book" href="/api/units">
+    Organize learning content with units, topics, and sections
+  </Card>
+  <Card title="Evaluation System" icon="clipboard-check" href="/api/evaluations">
+    Create and manage evaluations with question banks
+  </Card>
+</CardGroup>
+
+## What You Can Build
+
+This API enables you to build educational platforms with:
+
+- **Multi-institution support** — Manage multiple educational institutions with separate academic years, schedules, and contact information
+- **User management** — Handle student and teacher accounts with role-based access
+- **Course structure** — Organize curriculum into sections, units, and topics
+- **Learning resources** — Attach documents, videos, and materials to topics
+- **Assessment tools** — Create evaluations with questions and response options
+- **Registration system** — Track student enrollments in different sections
+
+## Technology Stack
+
+- **Laravel 12** — Modern PHP framework with elegant syntax
+- **Laravel Sanctum** — API token authentication
+- **SQLite** — Lightweight database (supports MySQL/PostgreSQL)
+- **RESTful Architecture** — Standard HTTP methods and JSON responses
+
+## API Architecture
+
+All API endpoints follow a consistent structure:
+
+- **Base URL**: `/api`
+- **Authentication**: Bearer token via Laravel Sanctum
+- **Response Format**: Standardized JSON with `success`, `message`, and `data` fields
+- **CRUD Operations**: Full Create, Read, Update, Delete support for all resources
+
+## Quick Navigation
+
+<CardGroup cols={3}>
+  <Card title="Get Started" icon="rocket" href="/installation">
+    Install and configure the API
+  </Card>
+  <Card title="Authentication" icon="lock" href="/authentication/overview">
+    Learn about API authentication
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/overview">
+    Explore all available endpoints
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<Steps>
+  <Step title="Install the API">
+    Follow the [installation guide](/installation) to set up your local environment
+  </Step>
+  <Step title="Run your first request">
+    Check out the [quickstart guide](/quickstart) for a working example
+  </Step>
+  <Step title="Explore endpoints">
+    Browse the [API reference](/api/overview) to see all available resources
+  </Step>
+</Steps>

@@ -1,0 +1,341 @@
+---
+title: 'Registrations'
+description: 'Manage student registrations (matriculas) in course sections'
+---
+
+## Overview
+
+The Registrations API allows you to manage student enrollments (matriculas) in course sections. Each registration links a student to a specific section with an assigned teacher, creating the enrollment relationship necessary for academic tracking.
+
+## Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/registrations` | List all registrations |
+| POST | `/api/registrations` | Create a new registration |
+| GET | `/api/registrations/{id}` | Get a specific registration |
+| PUT | `/api/registrations/{id}` | Update a registration |
+| DELETE | `/api/registrations/{id}` | Delete a registration |
+
+---
+
+## List All Registrations
+
+<CodeGroup>
+```bash GET /api/registrations
+curl -X GET "https://api.example.com/api/registrations" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+</CodeGroup>
+
+### Response
+
+<ResponseField name="success" type="boolean" required>
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string" required>
+  Response message in Spanish
+</ResponseField>
+
+<ResponseField name="data" type="array" required>
+  Array of registration objects
+  
+  <Expandable title="Registration Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the registration
+    </ResponseField>
+    
+    <ResponseField name="estudiante_id" type="integer">
+      Foreign key referencing the student user (users table)
+    </ResponseField>
+    
+    <ResponseField name="section_id" type="integer">
+      Foreign key referencing the section (sections table)
+    </ResponseField>
+    
+    <ResponseField name="docente_id" type="integer">
+      Foreign key referencing the teacher user (users table)
+    </ResponseField>
+    
+    <ResponseField name="fecha_matricula" type="date" optional>
+      Registration/enrollment date (YYYY-MM-DD). Can be null.
+    </ResponseField>
+    
+    <ResponseField name="activo" type="boolean">
+      Whether the registration is active (default: true)
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      Record creation timestamp
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      Record last update timestamp
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<CodeGroup>
+```json Response Example
+{
+  "success": true,
+  "message": "Matriculas listadas con éxito",
+  "data": [
+    {
+      "id": 1,
+      "estudiante_id": 5,
+      "section_id": 3,
+      "docente_id": 2,
+      "fecha_matricula": "2026-03-01",
+      "activo": true,
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    },
+    {
+      "id": 2,
+      "estudiante_id": 6,
+      "section_id": 3,
+      "docente_id": 2,
+      "fecha_matricula": "2026-03-02",
+      "activo": true,
+      "created_at": "2026-03-05T11:00:00.000000Z",
+      "updated_at": "2026-03-05T11:00:00.000000Z"
+    }
+  ]
+}
+```
+</CodeGroup>
+
+---
+
+## Create Registration
+
+<CodeGroup>
+```bash POST /api/registrations
+curl -X POST "https://api.example.com/api/registrations" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "estudiante_id": 7,
+    "section_id": 4,
+    "docente_id": 3,
+    "fecha_matricula": "2026-03-05",
+    "activo": true
+  }'
+```
+</CodeGroup>
+
+### Request Parameters
+
+<ParamField path="estudiante_id" type="integer" required>
+  ID of the student user being enrolled. Must reference a valid user with role "estudiante".
+</ParamField>
+
+<ParamField path="section_id" type="integer" required>
+  ID of the section the student is enrolling in. Must reference a valid section.
+</ParamField>
+
+<ParamField path="docente_id" type="integer" required>
+  ID of the teacher user assigned to this registration. Must reference a valid user with role "docente".
+</ParamField>
+
+<ParamField path="fecha_matricula" type="date" optional>
+  Date when the student enrolled in YYYY-MM-DD format. Can be null.
+</ParamField>
+
+<ParamField path="activo" type="boolean" optional>
+  Whether the registration is active. Defaults to true. Set to false to temporarily disable an enrollment without deleting it.
+</ParamField>
+
+### Response
+
+<CodeGroup>
+```json 201 - Created
+{
+  "success": true,
+  "message": "Matricula creada con éxito",
+  "data": {
+    "id": 3,
+    "estudiante_id": 7,
+    "section_id": 4,
+    "docente_id": 3,
+    "fecha_matricula": "2026-03-05",
+    "activo": true,
+    "created_at": "2026-03-05T12:30:00.000000Z",
+    "updated_at": "2026-03-05T12:30:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+<Note>
+  A unique constraint exists on the combination of `estudiante_id` and `section_id`, preventing duplicate enrollments of the same student in the same section.
+</Note>
+
+---
+
+## Get Registration
+
+<CodeGroup>
+```bash GET /api/registrations/{id}
+curl -X GET "https://api.example.com/api/registrations/1" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the registration
+</ParamField>
+
+### Response
+
+<CodeGroup>
+```json 200 - Success
+{
+  "success": true,
+  "message": "Matricula obtenida con éxito",
+  "data": {
+    "id": 1,
+    "estudiante_id": 5,
+    "section_id": 3,
+    "docente_id": 2,
+    "fecha_matricula": "2026-03-01",
+    "activo": true,
+    "created_at": "2026-03-05T10:30:00.000000Z",
+    "updated_at": "2026-03-05T10:30:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## Update Registration
+
+<CodeGroup>
+```bash PUT /api/registrations/{id}
+curl -X PUT "https://api.example.com/api/registrations/1" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "estudiante_id": 5,
+    "section_id": 3,
+    "docente_id": 4,
+    "fecha_matricula": "2026-03-01",
+    "activo": false
+  }'
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the registration to update
+</ParamField>
+
+### Request Parameters
+
+All parameters from the Create endpoint apply. You can send partial updates.
+
+<ParamField path="estudiante_id" type="integer" required>
+  ID of the student user
+</ParamField>
+
+<ParamField path="section_id" type="integer" required>
+  ID of the section
+</ParamField>
+
+<ParamField path="docente_id" type="integer" required>
+  ID of the teacher user
+</ParamField>
+
+<ParamField path="fecha_matricula" type="date" optional>
+  Registration date (YYYY-MM-DD)
+</ParamField>
+
+<ParamField path="activo" type="boolean" optional>
+  Active status
+</ParamField>
+
+### Response
+
+<CodeGroup>
+```json 200 - Success
+{
+  "success": true,
+  "message": "Matricula actualizada con éxito",
+  "data": {
+    "id": 1,
+    "estudiante_id": 5,
+    "section_id": 3,
+    "docente_id": 4,
+    "fecha_matricula": "2026-03-01",
+    "activo": false,
+    "created_at": "2026-03-05T10:30:00.000000Z",
+    "updated_at": "2026-03-05T15:20:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## Delete Registration
+
+<CodeGroup>
+```bash DELETE /api/registrations/{id}
+curl -X DELETE "https://api.example.com/api/registrations/1" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the registration to delete
+</ParamField>
+
+### Response
+
+<CodeGroup>
+```json 200 - Success
+{
+  "success": true,
+  "message": "Matricula eliminada con éxito",
+  "data": null
+}
+```
+</CodeGroup>
+
+<Warning>
+  Permanently deleting a registration removes the student's enrollment record. Consider setting `activo` to false instead to preserve historical data.
+</Warning>
+
+---
+
+## Business Rules
+
+### Unique Enrollments
+The database enforces a unique constraint on the combination of `estudiante_id` and `section_id`. This means:
+- A student cannot be enrolled in the same section multiple times
+- If you need to re-enroll a student, you must first delete the existing registration or update its status
+
+### Cascade Deletes
+Registrations are automatically deleted when:
+- The associated student (estudiante_id) is deleted
+- The associated teacher (docente_id) is deleted
+- The associated section (section_id) is deleted
+
+### Active Status
+The `activo` field allows you to:
+- Temporarily disable enrollments without losing historical data
+- Track withdrawn students while maintaining their registration record
+- Implement soft deletion patterns for better data integrity

@@ -1,0 +1,667 @@
+---
+title: "Deployment"
+description: "Deploy Backend App to production"
+---
+
+This guide covers best practices for deploying your Laravel application to production environments.
+
+## Pre-Deployment Checklist
+
+Before deploying to production, ensure you have:
+
+- [ ] Configured production environment variables
+- [ ] Set up a production database
+- [ ] Configured a web server (Nginx/Apache)
+- [ ] Installed PHP 8.2 or higher
+- [ ] Installed Composer dependencies
+- [ ] Generated an application key
+- [ ] Configured file permissions
+- [ ] Set up SSL certificate
+
+## Environment Configuration
+
+<Warning>
+Proper environment configuration is critical for security and performance in production.
+</Warning>
+
+### Production .env Settings
+
+Update your `.env` file with production-appropriate values:
+
+```bash .env
+APP_NAME="Your Application Name"
+APP_ENV=production
+APP_KEY=base64:your-generated-key-here
+APP_DEBUG=false
+APP_URL=https://yourdomain.com
+
+APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
+
+LOG_CHANNEL=stack
+LOG_LEVEL=error
+LOG_DEPRECATIONS_CHANNEL=null
+
+# Database
+DB_CONNECTION=mysql
+DB_HOST=your-db-host
+DB_PORT=3306
+DB_DATABASE=your_production_db
+DB_USERNAME=your_db_user
+DB_PASSWORD=your_secure_password
+
+# Session & Cache
+SESSION_DRIVER=redis
+SESSION_LIFETIME=120
+SESSION_ENCRYPT=true
+SESSION_PATH=/
+SESSION_DOMAIN=.yourdomain.com
+
+CACHE_STORE=redis
+QUEUE_CONNECTION=redis
+
+# Redis
+REDIS_CLIENT=phpredis
+REDIS_HOST=your-redis-host
+REDIS_PASSWORD=your_redis_password
+REDIS_PORT=6379
+
+# Mail
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.yourmailserver.com
+MAIL_PORT=587
+MAIL_USERNAME=your_smtp_username
+MAIL_PASSWORD=your_smtp_password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="noreply@yourdomain.com"
+MAIL_FROM_NAME="${APP_NAME}"
+
+# Broadcasting
+BROADCAST_CONNECTION=log
+FILESYSTEM_DISK=local
+
+# AWS (if using S3)
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=your_bucket_name
+AWS_USE_PATH_STYLE_ENDPOINT=false
+```
+
+### Critical Security Settings
+
+<Accordion title="APP_DEBUG">
+
+**Must be set to `false` in production**
+
+```bash
+APP_DEBUG=false
+```
+
+When `APP_DEBUG=true`, detailed error messages expose:
+- Database credentials
+- File paths
+- Environment variables
+- Stack traces
+
+<Warning>
+Leaving debug mode enabled in production is a critical security vulnerability.
+</Warning>
+
+</Accordion>
+
+<Accordion title="APP_ENV">
+
+**Must be set to `production`**
+
+```bash
+APP_ENV=production
+```
+
+This ensures:
+- Migrations require the `--force` flag
+- Error reporting is minimized
+- Optimization is prioritized
+
+</Accordion>
+
+<Accordion title="APP_KEY">
+
+**Must be unique and securely generated**
+
+```bash
+APP_KEY=base64:your-unique-generated-key
+```
+
+Generate a new key for production:
+
+```bash
+php artisan key:generate
+```
+
+<Warning>
+Never reuse development keys in production. Never commit keys to version control.
+</Warning>
+
+</Accordion>
+
+## Deployment Steps
+
+### 1. Server Preparation
+
+Ensure your server has:
+
+```bash
+# PHP 8.2+ with required extensions
+php -v
+php -m  # Verify extensions: openssl, pdo, mbstring, tokenizer, xml, ctype, json, bcmath
+
+# Composer
+composer --version
+
+# Web server (Nginx/Apache)
+nginx -v
+# or
+apache2 -v
+```
+
+### 2. Clone Repository
+
+```bash
+cd /var/www
+git clone https://github.com/yourusername/your-repo.git your-app
+cd your-app
+```
+
+### 3. Install Dependencies
+
+```bash
+composer install --optimize-autoloader --no-dev
+```
+
+<Note>
+The `--no-dev` flag excludes development dependencies, and `--optimize-autoloader` improves autoloader performance.
+</Note>
+
+### 4. Environment Configuration
+
+```bash
+cp .env.example .env
+nano .env  # Edit with production values
+```
+
+### 5. Generate Application Key
+
+```bash
+php artisan key:generate
+```
+
+### 6. Set File Permissions
+
+```bash
+chown -R www-data:www-data /var/www/your-app
+chmod -R 755 /var/www/your-app
+chmod -R 775 /var/www/your-app/storage
+chmod -R 775 /var/www/your-app/bootstrap/cache
+```
+
+<Tip>
+Replace `www-data` with your web server user (e.g., `nginx`, `apache`).
+</Tip>
+
+### 7. Run Migrations
+
+```bash
+php artisan migrate --force
+```
+
+<Warning>
+The `--force` flag is required when `APP_ENV=production`.
+</Warning>
+
+### 8. Optimize Application
+
+```bash
+# Cache configuration
+php artisan config:cache
+
+# Cache routes
+php artisan route:cache
+
+# Cache views
+php artisan view:cache
+
+# Cache events
+php artisan event:cache
+```
+
+<Note>
+These optimization commands significantly improve application performance by caching configuration, routes, and views.
+</Note>
+
+### 9. Build Frontend Assets
+
+```bash
+npm install
+npm run build
+```
+
+### 10. Configure Web Server
+
+<CodeGroup>
+
+```nginx Nginx
+server {
+    listen 80;
+    listen [::]:80;
+    server_name yourdomain.com www.yourdomain.com;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name yourdomain.com www.yourdomain.com;
+    root /var/www/your-app/public;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php;
+
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    # SSL Configuration
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+}
+```
+
+```apache Apache
+<VirtualHost *:80>
+    ServerName yourdomain.com
+    ServerAlias www.yourdomain.com
+    Redirect permanent / https://yourdomain.com/
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName yourdomain.com
+    ServerAlias www.yourdomain.com
+    DocumentRoot /var/www/your-app/public
+
+    <Directory /var/www/your-app/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+    # SSL Configuration
+    SSLEngine on
+    SSLCertificateFile /etc/letsencrypt/live/yourdomain.com/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/yourdomain.com/privkey.pem
+    SSLProtocol all -SSLv3 -TLSv1 -TLSv1.1
+    SSLCipherSuite HIGH:!aNULL:!MD5
+</VirtualHost>
+```
+
+</CodeGroup>
+
+### 11. Start Queue Workers (Optional)
+
+If using queues, set up a queue worker:
+
+```bash
+php artisan queue:work --daemon
+```
+
+For production, use a process manager like Supervisor:
+
+```ini /etc/supervisor/conf.d/laravel-worker.conf
+[program:laravel-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/your-app/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/var/www/your-app/storage/logs/worker.log
+stopwaitsecs=3600
+```
+
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start laravel-worker:*
+```
+
+## Database Migration Strategy
+
+### Zero-Downtime Migrations
+
+<Accordion title="Backward Compatible Migrations">
+
+Write migrations that are backward compatible:
+
+1. **Adding columns**: Make new columns nullable or provide defaults
+2. **Removing columns**: Deploy code that doesn't use the column first, then remove it
+3. **Renaming columns**: Add new column, copy data, deprecate old column, then remove
+
+```php
+// Good: Backward compatible
+public function up()
+{
+    Schema::table('users', function (Blueprint $table) {
+        $table->string('phone')->nullable()->after('email');
+    });
+}
+```
+
+</Accordion>
+
+<Accordion title="Migration Testing">
+
+Always test migrations in a staging environment:
+
+```bash
+# Staging environment
+php artisan migrate --pretend  # Preview SQL
+php artisan migrate            # Apply
+php artisan migrate:status     # Verify
+```
+
+</Accordion>
+
+<Accordion title="Rollback Plan">
+
+Have a rollback plan ready:
+
+```bash
+# Rollback last migration batch
+php artisan migrate:rollback
+
+# Rollback specific steps
+php artisan migrate:rollback --step=1
+```
+
+</Accordion>
+
+## Optimization Commands
+
+### Clear All Caches
+
+```bash
+php artisan optimize:clear
+```
+
+This clears:
+- Configuration cache
+- Route cache
+- View cache
+- Event cache
+- Compiled classes
+
+### Rebuild Caches
+
+```bash
+php artisan optimize
+```
+
+This caches:
+- Configuration
+- Routes
+- Events
+
+<Tip>
+Run `php artisan optimize` after each deployment to ensure optimal performance.
+</Tip>
+
+## Monitoring & Logging
+
+### Log Configuration
+
+```bash .env
+LOG_CHANNEL=stack
+LOG_LEVEL=error
+```
+
+In production, set `LOG_LEVEL` to `error` to reduce log volume:
+- `debug`: Most verbose (development only)
+- `info`: Informational messages
+- `notice`: Normal but significant conditions
+- `warning`: Warning conditions
+- `error`: Error conditions (recommended for production)
+- `critical`: Critical conditions
+- `alert`: Action must be taken immediately
+- `emergency`: System is unusable
+
+### View Logs
+
+```bash
+tail -f storage/logs/laravel.log
+```
+
+### Log Rotation
+
+Configure daily log rotation:
+
+```php config/logging.php
+'daily' => [
+    'driver' => 'daily',
+    'path' => storage_path('logs/laravel.log'),
+    'level' => env('LOG_LEVEL', 'error'),
+    'days' => 14,
+],
+```
+
+## Security Considerations
+
+<Warning>
+Security must be a top priority in production deployments.
+</Warning>
+
+### 1. Environment File Security
+
+```bash
+# Restrict .env file permissions
+chmod 600 .env
+chown www-data:www-data .env
+```
+
+### 2. Hide Sensitive Files
+
+Ensure `.env`, `.git`, and other sensitive files are not accessible:
+
+```nginx Nginx
+location ~ /\.(?!well-known).* {
+    deny all;
+}
+```
+
+### 3. HTTPS Only
+
+Enforce HTTPS:
+
+```php app/Http/Middleware/TrustProxies.php
+protected $headers = Request::HEADER_X_FORWARDED_ALL;
+```
+
+```php config/session.php
+'secure' => env('SESSION_SECURE_COOKIE', true),
+'same_site' => 'lax',
+```
+
+### 4. Rate Limiting
+
+Implement rate limiting to prevent abuse:
+
+```php routes/api.php
+Route::middleware(['throttle:60,1'])->group(function () {
+    // API routes
+});
+```
+
+### 5. CORS Configuration
+
+Configure CORS appropriately:
+
+```php config/cors.php
+'allowed_origins' => ['https://yourdomain.com'],
+'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE'],
+```
+
+## Continuous Deployment
+
+### Deployment Script
+
+Create a deployment script for consistent deployments:
+
+```bash deploy.sh
+#!/bin/bash
+set -e
+
+echo "Starting deployment..."
+
+# Pull latest code
+git pull origin main
+
+# Install dependencies
+composer install --optimize-autoloader --no-dev
+
+# Run migrations
+php artisan migrate --force
+
+# Clear and rebuild cache
+php artisan optimize:clear
+php artisan optimize
+
+# Build frontend assets
+npm install
+npm run build
+
+# Restart queue workers
+sudo supervisorctl restart laravel-worker:*
+
+# Restart PHP-FPM (if needed)
+sudo systemctl reload php8.2-fpm
+
+echo "Deployment complete!"
+```
+
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+## Health Checks
+
+### Application Health
+
+Create a health check endpoint:
+
+```php routes/web.php
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'healthy',
+        'database' => DB::connection()->getPdo() ? 'connected' : 'disconnected',
+        'cache' => Cache::has('health-check') ? 'working' : 'not working',
+    ]);
+});
+```
+
+### Monitor Application
+
+```bash
+curl https://yourdomain.com/health
+```
+
+## Troubleshooting
+
+<Accordion title="500 Internal Server Error">
+
+1. Check file permissions: `chmod -R 775 storage bootstrap/cache`
+2. Check web server error logs: `tail -f /var/log/nginx/error.log`
+3. Check Laravel logs: `tail -f storage/logs/laravel.log`
+4. Clear caches: `php artisan optimize:clear`
+
+</Accordion>
+
+<Accordion title="Blank Page">
+
+1. Check PHP-FPM is running: `systemctl status php8.2-fpm`
+2. Increase PHP memory limit in `php.ini`
+3. Enable error reporting temporarily to see errors
+
+</Accordion>
+
+<Accordion title="Database Connection Failed">
+
+1. Verify database credentials in `.env`
+2. Check database server is accessible: `mysql -h host -u user -p`
+3. Verify firewall rules allow database connections
+4. Check `DB_HOST` - use `127.0.0.1` instead of `localhost` for TCP
+
+</Accordion>
+
+## Performance Optimization
+
+### 1. Opcode Caching
+
+Ensure OPcache is enabled:
+
+```ini php.ini
+opcache.enable=1
+opcache.memory_consumption=128
+opcache.interned_strings_buffer=8
+opcache.max_accelerated_files=4000
+opcache.revalidate_freq=60
+```
+
+### 2. Database Optimization
+
+```bash
+# Add indexes to frequently queried columns
+# Use query caching with Redis
+CACHE_STORE=redis
+```
+
+### 3. CDN for Assets
+
+Use a CDN for static assets (CSS, JS, images) to reduce server load.
+
+### 4. Queue Jobs
+
+Move time-consuming tasks to queue workers:
+
+```php
+QUEUE_CONNECTION=redis
+```
+
+<Tip>
+Regularly monitor application performance and optimize bottlenecks using tools like Laravel Telescope or New Relic.
+</Tip>

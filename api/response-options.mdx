@@ -1,0 +1,543 @@
+---
+title: 'Response Options'
+description: 'Manage answer choices for multiple choice and true/false questions'
+---
+
+## Overview
+
+The Response Options API manages the answer choices associated with questions in the question bank. Response options are used primarily for multiple choice and true/false questions, where each option has text, a correct/incorrect flag, and an optional display order.
+
+## Endpoints
+
+### List All Response Options
+
+Retrieve all response options in the system.
+
+```bash
+GET /api/response_option
+```
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Opciones de respuesta listadas con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of response option objects
+  
+  <Expandable title="Response Option Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the response option
+    </ResponseField>
+    
+    <ResponseField name="preguntas_id" type="integer" required>
+      ID of the question this option belongs to (foreign key to preguntas table)
+    </ResponseField>
+    
+    <ResponseField name="texto" type="text" required>
+      The text content of the answer option
+    </ResponseField>
+    
+    <ResponseField name="es_correcta" type="tinyint">
+      Flag indicating if this is the correct answer (0 = incorrect, 1 = correct, default: 0)
+    </ResponseField>
+    
+    <ResponseField name="orden" type="smallint">
+      Display order for the option (nullable, useful for controlling option sequence)
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      Timestamp when the option was created
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      Timestamp when the option was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://api.example.com/api/response_option \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/response_option', {
+  method: 'GET',
+  headers: {
+    'Accept': 'application/json'
+  }
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::get('https://api.example.com/api/response_option');
+$responseOptions = $response->json();
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Opciones de respuesta listadas con éxito",
+  "data": [
+    {
+      "id": 1,
+      "preguntas_id": 5,
+      "texto": "$variable",
+      "es_correcta": 1,
+      "orden": 1,
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    },
+    {
+      "id": 2,
+      "preguntas_id": 5,
+      "texto": "var variable",
+      "es_correcta": 0,
+      "orden": 2,
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    },
+    {
+      "id": 3,
+      "preguntas_id": 5,
+      "texto": "variable:",
+      "es_correcta": 0,
+      "orden": 3,
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    },
+    {
+      "id": 4,
+      "preguntas_id": 5,
+      "texto": "#variable",
+      "es_correcta": 0,
+      "orden": 4,
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    }
+  ]
+}
+```
+
+---
+
+### Create Response Option
+
+Create a new response option for a question.
+
+```bash
+POST /api/response_option
+```
+
+#### Request Body
+
+<ParamField path="preguntas_id" type="integer" required>
+  ID of the question this option belongs to
+</ParamField>
+
+<ParamField path="texto" type="text" required>
+  The text content of the answer option
+</ParamField>
+
+<ParamField path="es_correcta" type="tinyint" default="0">
+  Flag indicating if this is the correct answer (0 = incorrect, 1 = correct)
+</ParamField>
+
+<ParamField path="orden" type="smallint">
+  Display order for the option (optional, useful for sequencing)
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the option was created successfully
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Opción de respuesta creada con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The created response option object with all fields including timestamps
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.example.com/api/response_option \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "preguntas_id": 25,
+    "texto": "El operador punto (.)",
+    "es_correcta": 1,
+    "orden": 1
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/response_option', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  body: JSON.stringify({
+    preguntas_id: 25,
+    texto: 'El operador punto (.)',
+    es_correcta: 1,
+    orden: 1
+  })
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::post('https://api.example.com/api/response_option', [
+    'preguntas_id' => 25,
+    'texto' => 'El operador punto (.)',
+    'es_correcta' => 1,
+    'orden' => 1
+]);
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Opción de respuesta creada con éxito",
+  "data": {
+    "id": 87,
+    "preguntas_id": 25,
+    "texto": "El operador punto (.)",
+    "es_correcta": 1,
+    "orden": 1,
+    "created_at": "2026-03-05T14:25:00.000000Z",
+    "updated_at": "2026-03-05T14:25:00.000000Z"
+  }
+}
+```
+
+---
+
+### Get Response Option
+
+Retrieve a specific response option by ID.
+
+```bash
+GET /api/response_option/{id}
+```
+
+#### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the response option
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Opción de respuesta obtenida con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The response option object with all fields
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://api.example.com/api/response_option/87 \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/response_option/87', {
+  method: 'GET',
+  headers: {
+    'Accept': 'application/json'
+  }
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::get('https://api.example.com/api/response_option/87');
+$responseOption = $response->json();
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Opción de respuesta obtenida con éxito",
+  "data": {
+    "id": 87,
+    "preguntas_id": 25,
+    "texto": "El operador punto (.)",
+    "es_correcta": 1,
+    "orden": 1,
+    "created_at": "2026-03-05T14:25:00.000000Z",
+    "updated_at": "2026-03-05T14:25:00.000000Z"
+  }
+}
+```
+
+---
+
+### Update Response Option
+
+Update an existing response option.
+
+```bash
+PUT /api/response_option/{id}
+```
+
+#### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the response option to update
+</ParamField>
+
+#### Request Body
+
+<ParamField path="preguntas_id" type="integer">
+  ID of the question this option belongs to
+</ParamField>
+
+<ParamField path="texto" type="text">
+  The text content of the answer option
+</ParamField>
+
+<ParamField path="es_correcta" type="tinyint">
+  Correct answer flag (0 or 1)
+</ParamField>
+
+<ParamField path="orden" type="smallint">
+  Display order
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the update was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Opción de respuesta actualizada con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The updated response option object
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X PUT https://api.example.com/api/response_option/87 \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "texto": "El operador punto (.) para concatenación",
+    "orden": 1
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/response_option/87', {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  body: JSON.stringify({
+    texto: 'El operador punto (.) para concatenación',
+    orden: 1
+  })
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::put('https://api.example.com/api/response_option/87', [
+    'texto' => 'El operador punto (.) para concatenación',
+    'orden' => 1
+]);
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Opción de respuesta actualizada con éxito",
+  "data": {
+    "id": 87,
+    "preguntas_id": 25,
+    "texto": "El operador punto (.) para concatenación",
+    "es_correcta": 1,
+    "orden": 1,
+    "created_at": "2026-03-05T14:25:00.000000Z",
+    "updated_at": "2026-03-05T15:18:00.000000Z"
+  }
+}
+```
+
+---
+
+### Delete Response Option
+
+Delete a response option from the system.
+
+```bash
+DELETE /api/response_option/{id}
+```
+
+#### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the response option to delete
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the deletion was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Opción de respuesta eliminada con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="null">
+  Returns null after successful deletion
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X DELETE https://api.example.com/api/response_option/87 \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/response_option/87', {
+  method: 'DELETE',
+  headers: {
+    'Accept': 'application/json'
+  }
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::delete('https://api.example.com/api/response_option/87');
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Opción de respuesta eliminada con éxito",
+  "data": null
+}
+```
+
+---
+
+## Foreign Key Relationships
+
+### Question Relationship
+- **Field**: `preguntas_id`
+- **References**: `preguntas.id`
+- **On Delete**: CASCADE (deleting a question will delete all its response options)
+
+---
+
+## Important Notes
+
+### Route Name
+Note that the API route is `/api/response_option` (singular), not `/api/response_options` (plural).
+
+### Usage Guidelines
+
+- Each question can have multiple response options
+- For multiple choice questions, typically 4-5 options are created
+- For true/false questions, exactly 2 options should be created
+- Only one option should have `es_correcta` set to 1 for single-answer questions
+- Multiple options can be correct for multi-select questions
+- The `orden` field allows control over how options are displayed to users
+- Response options use timestamps (`created_at`, `updated_at`) for audit tracking
+
+### Best Practices
+
+1. **Ordering**: Use the `orden` field to control the sequence of display
+2. **Validation**: Ensure at least one option is marked as correct for each question
+3. **Text Length**: Keep option text concise and clear
+4. **Cascading Deletes**: Be aware that deleting a question will automatically delete all its response options
+
+---
+
+## Example: Creating a Complete Multiple Choice Question
+
+Here's a workflow for creating a multiple choice question with options:
+
+```bash
+# Step 1: Create the question
+curl -X POST https://api.example.com/api/questions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tema_id": 8,
+    "tipo": "opcion_multiple",
+    "enunciado": "¿Cuál es la forma correcta de declarar una variable en PHP?",
+    "puntaje": 1.00,
+    "nivel_dificultad": 1
+  }'
+
+# Response: { "data": { "id": 50, ... } }
+
+# Step 2: Create response options
+curl -X POST https://api.example.com/api/response_option \
+  -H "Content-Type: application/json" \
+  -d '{"preguntas_id": 50, "texto": "$variable", "es_correcta": 1, "orden": 1}'
+
+curl -X POST https://api.example.com/api/response_option \
+  -H "Content-Type: application/json" \
+  -d '{"preguntas_id": 50, "texto": "var variable", "es_correcta": 0, "orden": 2}'
+
+curl -X POST https://api.example.com/api/response_option \
+  -H "Content-Type: application/json" \
+  -d '{"preguntas_id": 50, "texto": "variable:", "es_correcta": 0, "orden": 3}'
+
+curl -X POST https://api.example.com/api/response_option \
+  -H "Content-Type: application/json" \
+  -d '{"preguntas_id": 50, "texto": "#variable", "es_correcta": 0, "orden": 4}'
+```

@@ -1,0 +1,543 @@
+---
+title: 'Learning Resources'
+description: 'Manage educational materials including videos, PDFs, and presentations attached to course topics'
+---
+
+## Overview
+
+The Resources API allows you to manage learning materials that support course topics. Resources can be videos, PDF documents, or presentations, each with metadata like duration, descriptions, and URLs. Resources are linked to specific topics and optionally to the instructor who created them.
+
+## Endpoints
+
+### List All Resources
+
+Retrieve a list of all learning resources in the system.
+
+```bash
+GET /api/resources
+```
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Recursos listados con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of resource objects
+  
+  <Expandable title="Resource Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the resource
+    </ResponseField>
+    
+    <ResponseField name="topics_id" type="integer" required>
+      ID of the topic this resource belongs to (foreign key to topics table)
+    </ResponseField>
+    
+    <ResponseField name="docente_id" type="integer">
+      ID of the instructor who created this resource (foreign key to users table, nullable)
+    </ResponseField>
+    
+    <ResponseField name="tipo" type="enum" required>
+      Type of resource. Possible values: `video`, `pdf`, `presentacion`
+    </ResponseField>
+    
+    <ResponseField name="titulo" type="string" required>
+      Title of the resource (max 200 characters)
+    </ResponseField>
+    
+    <ResponseField name="descripcion" type="text">
+      Detailed description of the resource content (nullable)
+    </ResponseField>
+    
+    <ResponseField name="url" type="string">
+      URL where the resource can be accessed (max 500 characters, nullable)
+    </ResponseField>
+    
+    <ResponseField name="duracion_min" type="integer">
+      Duration in minutes (applicable mainly for videos, nullable)
+    </ResponseField>
+    
+    <ResponseField name="activo" type="tinyint">
+      Status flag indicating if resource is active (0 = inactive, 1 = active, default: 1)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://api.example.com/api/resources \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/resources', {
+  method: 'GET',
+  headers: {
+    'Accept': 'application/json'
+  }
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::get('https://api.example.com/api/resources');
+$resources = $response->json();
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Recursos listados con éxito",
+  "data": [
+    {
+      "id": 1,
+      "topics_id": 5,
+      "docente_id": 12,
+      "tipo": "video",
+      "titulo": "Introducción a las Variables en PHP",
+      "descripcion": "Video explicativo sobre el uso de variables y tipos de datos en PHP",
+      "url": "https://storage.example.com/videos/php-variables.mp4",
+      "duracion_min": 25,
+      "activo": 1
+    },
+    {
+      "id": 2,
+      "topics_id": 5,
+      "docente_id": 12,
+      "tipo": "pdf",
+      "titulo": "Guía de Sintaxis PHP",
+      "descripcion": "Documento PDF con ejemplos de sintaxis básica de PHP",
+      "url": "https://storage.example.com/docs/php-syntax-guide.pdf",
+      "duracion_min": null,
+      "activo": 1
+    }
+  ]
+}
+```
+
+---
+
+### Create Resource
+
+Create a new learning resource.
+
+```bash
+POST /api/resources
+```
+
+#### Request Body
+
+<ParamField path="topics_id" type="integer" required>
+  ID of the topic this resource belongs to
+</ParamField>
+
+<ParamField path="docente_id" type="integer">
+  ID of the instructor creating this resource (optional)
+</ParamField>
+
+<ParamField path="tipo" type="enum" required>
+  Type of resource. Must be one of: `video`, `pdf`, `presentacion`
+</ParamField>
+
+<ParamField path="titulo" type="string" required>
+  Title of the resource (maximum 200 characters)
+</ParamField>
+
+<ParamField path="descripcion" type="text">
+  Detailed description of the resource (optional)
+</ParamField>
+
+<ParamField path="url" type="string">
+  URL where the resource is hosted (maximum 500 characters, optional)
+</ParamField>
+
+<ParamField path="duracion_min" type="integer">
+  Duration in minutes (optional, typically used for videos)
+</ParamField>
+
+<ParamField path="activo" type="tinyint" default="1">
+  Active status (0 = inactive, 1 = active)
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the resource was created successfully
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Recurso creado con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The created resource object with all fields
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.example.com/api/resources \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "topics_id": 5,
+    "docente_id": 12,
+    "tipo": "video",
+    "titulo": "Arrays en PHP",
+    "descripcion": "Tutorial completo sobre arrays indexados y asociativos",
+    "url": "https://storage.example.com/videos/php-arrays.mp4",
+    "duracion_min": 30,
+    "activo": 1
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/resources', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  body: JSON.stringify({
+    topics_id: 5,
+    docente_id: 12,
+    tipo: 'video',
+    titulo: 'Arrays en PHP',
+    descripcion: 'Tutorial completo sobre arrays indexados y asociativos',
+    url: 'https://storage.example.com/videos/php-arrays.mp4',
+    duracion_min: 30,
+    activo: 1
+  })
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::post('https://api.example.com/api/resources', [
+    'topics_id' => 5,
+    'docente_id' => 12,
+    'tipo' => 'video',
+    'titulo' => 'Arrays en PHP',
+    'descripcion' => 'Tutorial completo sobre arrays indexados y asociativos',
+    'url' => 'https://storage.example.com/videos/php-arrays.mp4',
+    'duracion_min' => 30,
+    'activo' => 1
+]);
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Recurso creado con éxito",
+  "data": {
+    "id": 15,
+    "topics_id": 5,
+    "docente_id": 12,
+    "tipo": "video",
+    "titulo": "Arrays en PHP",
+    "descripcion": "Tutorial completo sobre arrays indexados y asociativos",
+    "url": "https://storage.example.com/videos/php-arrays.mp4",
+    "duracion_min": 30,
+    "activo": 1
+  }
+}
+```
+
+---
+
+### Get Resource
+
+Retrieve a specific resource by ID.
+
+```bash
+GET /api/resources/{id}
+```
+
+#### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the resource
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Recurso obtenido con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The resource object with all fields
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://api.example.com/api/resources/15 \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/resources/15', {
+  method: 'GET',
+  headers: {
+    'Accept': 'application/json'
+  }
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::get('https://api.example.com/api/resources/15');
+$resource = $response->json();
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Recurso obtenido con éxito",
+  "data": {
+    "id": 15,
+    "topics_id": 5,
+    "docente_id": 12,
+    "tipo": "video",
+    "titulo": "Arrays en PHP",
+    "descripcion": "Tutorial completo sobre arrays indexados y asociativos",
+    "url": "https://storage.example.com/videos/php-arrays.mp4",
+    "duracion_min": 30,
+    "activo": 1
+  }
+}
+```
+
+---
+
+### Update Resource
+
+Update an existing resource.
+
+```bash
+PUT /api/resources/{id}
+```
+
+#### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the resource to update
+</ParamField>
+
+#### Request Body
+
+<ParamField path="topics_id" type="integer">
+  ID of the topic this resource belongs to
+</ParamField>
+
+<ParamField path="docente_id" type="integer">
+  ID of the instructor
+</ParamField>
+
+<ParamField path="tipo" type="enum">
+  Type of resource: `video`, `pdf`, or `presentacion`
+</ParamField>
+
+<ParamField path="titulo" type="string">
+  Title of the resource (maximum 200 characters)
+</ParamField>
+
+<ParamField path="descripcion" type="text">
+  Detailed description
+</ParamField>
+
+<ParamField path="url" type="string">
+  Resource URL (maximum 500 characters)
+</ParamField>
+
+<ParamField path="duracion_min" type="integer">
+  Duration in minutes
+</ParamField>
+
+<ParamField path="activo" type="tinyint">
+  Active status (0 or 1)
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the update was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Recurso actualizado con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The updated resource object
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X PUT https://api.example.com/api/resources/15 \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "titulo": "Arrays y Colecciones en PHP",
+    "descripcion": "Tutorial ampliado sobre arrays, colecciones y funciones de array",
+    "duracion_min": 45
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/resources/15', {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  body: JSON.stringify({
+    titulo: 'Arrays y Colecciones en PHP',
+    descripcion: 'Tutorial ampliado sobre arrays, colecciones y funciones de array',
+    duracion_min: 45
+  })
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::put('https://api.example.com/api/resources/15', [
+    'titulo' => 'Arrays y Colecciones en PHP',
+    'descripcion' => 'Tutorial ampliado sobre arrays, colecciones y funciones de array',
+    'duracion_min' => 45
+]);
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Recurso actualizado con éxito",
+  "data": {
+    "id": 15,
+    "topics_id": 5,
+    "docente_id": 12,
+    "tipo": "video",
+    "titulo": "Arrays y Colecciones en PHP",
+    "descripcion": "Tutorial ampliado sobre arrays, colecciones y funciones de array",
+    "url": "https://storage.example.com/videos/php-arrays.mp4",
+    "duracion_min": 45,
+    "activo": 1
+  }
+}
+```
+
+---
+
+### Delete Resource
+
+Delete a resource from the system.
+
+```bash
+DELETE /api/resources/{id}
+```
+
+#### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the resource to delete
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the deletion was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Recurso eliminado con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="null">
+  Returns null after successful deletion
+</ResponseField>
+
+#### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X DELETE https://api.example.com/api/resources/15 \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.example.com/api/resources/15', {
+  method: 'DELETE',
+  headers: {
+    'Accept': 'application/json'
+  }
+});
+const data = await response.json();
+```
+
+```php PHP
+$response = Http::delete('https://api.example.com/api/resources/15');
+```
+</CodeGroup>
+
+#### Example Response
+
+```json
+{
+  "success": true,
+  "message": "Recurso eliminado con éxito",
+  "data": null
+}
+```
+
+---
+
+## Foreign Key Relationships
+
+### Topics Relationship
+- **Field**: `topics_id`
+- **References**: `topics.id`
+- **On Delete**: CASCADE (deleting a topic will delete all associated resources)
+
+### Instructor Relationship
+- **Field**: `docente_id`
+- **References**: `users.id`
+- **On Delete**: SET NULL (deleting a user will set the field to null, preserving the resource)
+
+---
+
+## Notes
+
+- The `tipo` field is restricted to three values: `video`, `pdf`, or `presentacion`
+- The `duracion_min` field is typically used for video resources to indicate playback time
+- Resources are soft-deletable via the `activo` flag (set to 0) without removing from database
+- All resources must be associated with a valid topic via `topics_id`
+- The `url` field can store external links or internal storage paths

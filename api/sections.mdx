@@ -1,0 +1,495 @@
+---
+title: 'Sections'
+description: 'Manage academic sections (grades/levels) in the system'
+---
+
+## Overview
+
+Sections represent academic grades or levels in the educational system. Each section has a grade level and a name, and can be associated with multiple units. Sections are the top-level organizational structure for academic content.
+
+## Endpoints
+
+### List All Sections
+
+<CodeGroup>
+```bash cURL
+curl -X GET "https://api.example.com/api/sections" \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+fetch('https://api.example.com/api/sections', {
+  method: 'GET',
+  headers: {
+    'Accept': 'application/json'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+```php PHP
+$client = new \GuzzleHttp\Client();
+$response = $client->get('https://api.example.com/api/sections', [
+  'headers' => [
+    'Accept' => 'application/json'
+  ]
+]);
+$data = json_decode($response->getBody());
+```
+</CodeGroup>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Secciones listado con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of section objects
+  
+  <Expandable title="Section Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the section
+    </ResponseField>
+    
+    <ResponseField name="grado" type="string">
+      Grade or level designation
+    </ResponseField>
+    
+    <ResponseField name="nombre" type="string">
+      Name of the section
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      When the section was created
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      When the section was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<CodeGroup>
+```json Example Response
+{
+  "success": true,
+  "message": "Secciones listado con éxito",
+  "data": [
+    {
+      "id": 1,
+      "grado": "1ro",
+      "nombre": "Primer Grado",
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    },
+    {
+      "id": 2,
+      "grado": "2do",
+      "nombre": "Segundo Grado",
+      "created_at": "2026-03-05T10:31:00.000000Z",
+      "updated_at": "2026-03-05T10:31:00.000000Z"
+    }
+  ]
+}
+```
+</CodeGroup>
+
+---
+
+### Create a Section
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://api.example.com/api/sections" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "grado": "3ro",
+    "nombre": "Tercer Grado"
+  }'
+```
+
+```javascript JavaScript
+fetch('https://api.example.com/api/sections', {
+  method: 'POST',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    grado: '3ro',
+    nombre: 'Tercer Grado'
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+```php PHP
+$client = new \GuzzleHttp\Client();
+$response = $client->post('https://api.example.com/api/sections', [
+  'headers' => [
+    'Accept' => 'application/json',
+    'Content-Type' => 'application/json'
+  ],
+  'json' => [
+    'grado' => '3ro',
+    'nombre' => 'Tercer Grado'
+  ]
+]);
+$data = json_decode($response->getBody());
+```
+</CodeGroup>
+
+#### Request Body
+
+<ParamField name="grado" type="string" required>
+  Grade or level designation (e.g., "1ro", "2do", "3ro")
+</ParamField>
+
+<ParamField name="nombre" type="string" required>
+  Name of the section (e.g., "Primer Grado", "Segundo Grado")
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Sección creado con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The created section object
+  
+  <Expandable title="Section Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the section
+    </ResponseField>
+    
+    <ResponseField name="grado" type="string">
+      Grade or level designation
+    </ResponseField>
+    
+    <ResponseField name="nombre" type="string">
+      Name of the section
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      When the section was created
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      When the section was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<CodeGroup>
+```json Example Response (201 Created)
+{
+  "success": true,
+  "message": "Sección creado con éxito",
+  "data": {
+    "id": 3,
+    "grado": "3ro",
+    "nombre": "Tercer Grado",
+    "created_at": "2026-03-05T10:35:00.000000Z",
+    "updated_at": "2026-03-05T10:35:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+### Get a Section
+
+<CodeGroup>
+```bash cURL
+curl -X GET "https://api.example.com/api/sections/1" \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+fetch('https://api.example.com/api/sections/1', {
+  method: 'GET',
+  headers: {
+    'Accept': 'application/json'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+```php PHP
+$client = new \GuzzleHttp\Client();
+$response = $client->get('https://api.example.com/api/sections/1', [
+  'headers' => [
+    'Accept' => 'application/json'
+  ]
+]);
+$data = json_decode($response->getBody());
+```
+</CodeGroup>
+
+#### Path Parameters
+
+<ParamField name="id" type="integer" required>
+  The ID of the section to retrieve
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Sección obtenido con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The section object
+  
+  <Expandable title="Section Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the section
+    </ResponseField>
+    
+    <ResponseField name="grado" type="string">
+      Grade or level designation
+    </ResponseField>
+    
+    <ResponseField name="nombre" type="string">
+      Name of the section
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      When the section was created
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      When the section was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<CodeGroup>
+```json Example Response
+{
+  "success": true,
+  "message": "Sección obtenido con éxito",
+  "data": {
+    "id": 1,
+    "grado": "1ro",
+    "nombre": "Primer Grado",
+    "created_at": "2026-03-05T10:30:00.000000Z",
+    "updated_at": "2026-03-05T10:30:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+### Update a Section
+
+<CodeGroup>
+```bash cURL
+curl -X PUT "https://api.example.com/api/sections/1" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "grado": "1ro Avanzado",
+    "nombre": "Primer Grado Avanzado"
+  }'
+```
+
+```javascript JavaScript
+fetch('https://api.example.com/api/sections/1', {
+  method: 'PUT',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    grado: '1ro Avanzado',
+    nombre: 'Primer Grado Avanzado'
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+```php PHP
+$client = new \GuzzleHttp\Client();
+$response = $client->put('https://api.example.com/api/sections/1', [
+  'headers' => [
+    'Accept' => 'application/json',
+    'Content-Type' => 'application/json'
+  ],
+  'json' => [
+    'grado' => '1ro Avanzado',
+    'nombre' => 'Primer Grado Avanzado'
+  ]
+]);
+$data = json_decode($response->getBody());
+```
+</CodeGroup>
+
+#### Path Parameters
+
+<ParamField name="id" type="integer" required>
+  The ID of the section to update
+</ParamField>
+
+#### Request Body
+
+<ParamField name="grado" type="string" required>
+  Grade or level designation
+</ParamField>
+
+<ParamField name="nombre" type="string" required>
+  Name of the section
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Sección actualizado con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The updated section object
+  
+  <Expandable title="Section Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the section
+    </ResponseField>
+    
+    <ResponseField name="grado" type="string">
+      Grade or level designation
+    </ResponseField>
+    
+    <ResponseField name="nombre" type="string">
+      Name of the section
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      When the section was created
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      When the section was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<CodeGroup>
+```json Example Response
+{
+  "success": true,
+  "message": "Sección actualizado con éxito",
+  "data": {
+    "id": 1,
+    "grado": "1ro Avanzado",
+    "nombre": "Primer Grado Avanzado",
+    "created_at": "2026-03-05T10:30:00.000000Z",
+    "updated_at": "2026-03-05T11:45:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+### Delete a Section
+
+<CodeGroup>
+```bash cURL
+curl -X DELETE "https://api.example.com/api/sections/1" \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+fetch('https://api.example.com/api/sections/1', {
+  method: 'DELETE',
+  headers: {
+    'Accept': 'application/json'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+```php PHP
+$client = new \GuzzleHttp\Client();
+$response = $client->delete('https://api.example.com/api/sections/1', [
+  'headers' => [
+    'Accept' => 'application/json'
+  ]
+]);
+$data = json_decode($response->getBody());
+```
+</CodeGroup>
+
+#### Path Parameters
+
+<ParamField name="id" type="integer" required>
+  The ID of the section to delete
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Sección eliminado con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="null">
+  Returns null for successful deletions
+</ResponseField>
+
+<CodeGroup>
+```json Example Response
+{
+  "success": true,
+  "message": "Sección eliminado con éxito",
+  "data": null
+}
+```
+</CodeGroup>
+
+---
+
+## Relationships
+
+### Units
+
+A section can have many units. When a section is deleted, all associated units are automatically deleted (cascade delete).
+
+### Database Schema
+
+The sections table includes:
+
+- `id` - Primary key (auto-increment)
+- `grado` - String field for grade designation
+- `nombre` - String field for section name
+- `created_at` - Timestamp for creation
+- `updated_at` - Timestamp for last update

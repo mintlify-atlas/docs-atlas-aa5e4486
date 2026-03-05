@@ -1,0 +1,603 @@
+---
+title: 'Topics'
+description: 'Manage academic topics within units, organized by difficulty level'
+---
+
+## Overview
+
+Topics represent individual subjects or themes within a unit. Each topic belongs to a specific unit and includes a difficulty level, description, and customizable order. Topics are the most granular level of academic content organization in the system.
+
+## Endpoints
+
+### List All Topics
+
+<CodeGroup>
+```bash cURL
+curl -X GET "https://api.example.com/api/topics" \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+fetch('https://api.example.com/api/topics', {
+  method: 'GET',
+  headers: {
+    'Accept': 'application/json'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+```php PHP
+$client = new \GuzzleHttp\Client();
+$response = $client->get('https://api.example.com/api/topics', [
+  'headers' => [
+    'Accept' => 'application/json'
+  ]
+]);
+$data = json_decode($response->getBody());
+```
+</CodeGroup>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Temas listado con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of topic objects
+  
+  <Expandable title="Topic Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the topic
+    </ResponseField>
+    
+    <ResponseField name="units_id" type="integer">
+      Foreign key reference to the parent unit
+    </ResponseField>
+    
+    <ResponseField name="tema" type="string">
+      Name of the topic (max 200 characters)
+    </ResponseField>
+    
+    <ResponseField name="descripcion" type="text" optional>
+      Description of the topic content (nullable)
+    </ResponseField>
+    
+    <ResponseField name="orden" type="integer">
+      Display order of the topic (default: 1)
+    </ResponseField>
+    
+    <ResponseField name="nivel_dificultad" type="string">
+      Difficulty level of the topic (default: "Básico")
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      When the topic was created
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      When the topic was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<CodeGroup>
+```json Example Response
+{
+  "success": true,
+  "message": "Temas listado con éxito",
+  "data": [
+    {
+      "id": 1,
+      "units_id": 1,
+      "tema": "Propiedades de los Números Naturales",
+      "descripcion": "Estudio de las propiedades fundamentales de los números naturales",
+      "orden": 1,
+      "nivel_dificultad": "Básico",
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    },
+    {
+      "id": 2,
+      "units_id": 1,
+      "tema": "Operaciones con Números Naturales",
+      "descripcion": "Suma, resta, multiplicación y división de números naturales",
+      "orden": 2,
+      "nivel_dificultad": "Intermedio",
+      "created_at": "2026-03-05T10:31:00.000000Z",
+      "updated_at": "2026-03-05T10:31:00.000000Z"
+    }
+  ]
+}
+```
+</CodeGroup>
+
+---
+
+### Create a Topic
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://api.example.com/api/topics" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "units_id": 1,
+    "tema": "Números Primos",
+    "descripcion": "Identificación y propiedades de los números primos",
+    "orden": 3,
+    "nivel_dificultad": "Avanzado"
+  }'
+```
+
+```javascript JavaScript
+fetch('https://api.example.com/api/topics', {
+  method: 'POST',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    units_id: 1,
+    tema: 'Números Primos',
+    descripcion: 'Identificación y propiedades de los números primos',
+    orden: 3,
+    nivel_dificultad: 'Avanzado'
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+```php PHP
+$client = new \GuzzleHttp\Client();
+$response = $client->post('https://api.example.com/api/topics', [
+  'headers' => [
+    'Accept' => 'application/json',
+    'Content-Type' => 'application/json'
+  ],
+  'json' => [
+    'units_id' => 1,
+    'tema' => 'Números Primos',
+    'descripcion' => 'Identificación y propiedades de los números primos',
+    'orden' => 3,
+    'nivel_dificultad' => 'Avanzado'
+  ]
+]);
+$data = json_decode($response->getBody());
+```
+</CodeGroup>
+
+#### Request Body
+
+<ParamField name="units_id" type="integer" required>
+  ID of the unit this topic belongs to. Must reference a valid unit.
+</ParamField>
+
+<ParamField name="tema" type="string" required>
+  Name of the topic (maximum 200 characters)
+</ParamField>
+
+<ParamField name="descripcion" type="text" optional>
+  Description of the topic content. This field is nullable.
+</ParamField>
+
+<ParamField name="orden" type="integer" default="1">
+  Display order of the topic. Defaults to 1 if not provided.
+</ParamField>
+
+<ParamField name="nivel_dificultad" type="string" default="Básico">
+  Difficulty level of the topic. Common values include "Básico", "Intermedio", "Avanzado". Defaults to "Básico" if not provided.
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Tema creado con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The created topic object
+  
+  <Expandable title="Topic Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the topic
+    </ResponseField>
+    
+    <ResponseField name="units_id" type="integer">
+      Foreign key reference to the parent unit
+    </ResponseField>
+    
+    <ResponseField name="tema" type="string">
+      Name of the topic
+    </ResponseField>
+    
+    <ResponseField name="descripcion" type="text">
+      Description of the topic content
+    </ResponseField>
+    
+    <ResponseField name="orden" type="integer">
+      Display order of the topic
+    </ResponseField>
+    
+    <ResponseField name="nivel_dificultad" type="string">
+      Difficulty level of the topic
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      When the topic was created
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      When the topic was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<CodeGroup>
+```json Example Response (201 Created)
+{
+  "success": true,
+  "message": "Tema creado con éxito",
+  "data": {
+    "id": 3,
+    "units_id": 1,
+    "tema": "Números Primos",
+    "descripcion": "Identificación y propiedades de los números primos",
+    "orden": 3,
+    "nivel_dificultad": "Avanzado",
+    "created_at": "2026-03-05T10:35:00.000000Z",
+    "updated_at": "2026-03-05T10:35:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+### Get a Topic
+
+<CodeGroup>
+```bash cURL
+curl -X GET "https://api.example.com/api/topics/1" \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+fetch('https://api.example.com/api/topics/1', {
+  method: 'GET',
+  headers: {
+    'Accept': 'application/json'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+```php PHP
+$client = new \GuzzleHttp\Client();
+$response = $client->get('https://api.example.com/api/topics/1', [
+  'headers' => [
+    'Accept' => 'application/json'
+  ]
+]);
+$data = json_decode($response->getBody());
+```
+</CodeGroup>
+
+#### Path Parameters
+
+<ParamField name="id" type="integer" required>
+  The ID of the topic to retrieve
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Tema obtenido con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The topic object
+  
+  <Expandable title="Topic Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the topic
+    </ResponseField>
+    
+    <ResponseField name="units_id" type="integer">
+      Foreign key reference to the parent unit
+    </ResponseField>
+    
+    <ResponseField name="tema" type="string">
+      Name of the topic
+    </ResponseField>
+    
+    <ResponseField name="descripcion" type="text">
+      Description of the topic content
+    </ResponseField>
+    
+    <ResponseField name="orden" type="integer">
+      Display order of the topic
+    </ResponseField>
+    
+    <ResponseField name="nivel_dificultad" type="string">
+      Difficulty level of the topic
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      When the topic was created
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      When the topic was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<CodeGroup>
+```json Example Response
+{
+  "success": true,
+  "message": "Tema obtenido con éxito",
+  "data": {
+    "id": 1,
+    "units_id": 1,
+    "tema": "Propiedades de los Números Naturales",
+    "descripcion": "Estudio de las propiedades fundamentales de los números naturales",
+    "orden": 1,
+    "nivel_dificultad": "Básico",
+    "created_at": "2026-03-05T10:30:00.000000Z",
+    "updated_at": "2026-03-05T10:30:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+### Update a Topic
+
+<CodeGroup>
+```bash cURL
+curl -X PUT "https://api.example.com/api/topics/1" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "units_id": 1,
+    "tema": "Propiedades y Clasificación de Números Naturales",
+    "descripcion": "Estudio completo de las propiedades fundamentales y clasificación de los números naturales",
+    "orden": 1,
+    "nivel_dificultad": "Intermedio"
+  }'
+```
+
+```javascript JavaScript
+fetch('https://api.example.com/api/topics/1', {
+  method: 'PUT',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    units_id: 1,
+    tema: 'Propiedades y Clasificación de Números Naturales',
+    descripcion: 'Estudio completo de las propiedades fundamentales y clasificación de los números naturales',
+    orden: 1,
+    nivel_dificultad: 'Intermedio'
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+```php PHP
+$client = new \GuzzleHttp\Client();
+$response = $client->put('https://api.example.com/api/topics/1', [
+  'headers' => [
+    'Accept' => 'application/json',
+    'Content-Type' => 'application/json'
+  ],
+  'json' => [
+    'units_id' => 1,
+    'tema' => 'Propiedades y Clasificación de Números Naturales',
+    'descripcion' => 'Estudio completo de las propiedades fundamentales y clasificación de los números naturales',
+    'orden' => 1,
+    'nivel_dificultad' => 'Intermedio'
+  ]
+]);
+$data = json_decode($response->getBody());
+```
+</CodeGroup>
+
+#### Path Parameters
+
+<ParamField name="id" type="integer" required>
+  The ID of the topic to update
+</ParamField>
+
+#### Request Body
+
+<ParamField name="units_id" type="integer" required>
+  ID of the unit this topic belongs to
+</ParamField>
+
+<ParamField name="tema" type="string" required>
+  Name of the topic (maximum 200 characters)
+</ParamField>
+
+<ParamField name="descripcion" type="text" optional>
+  Description of the topic content
+</ParamField>
+
+<ParamField name="orden" type="integer" default="1">
+  Display order of the topic
+</ParamField>
+
+<ParamField name="nivel_dificultad" type="string" default="Básico">
+  Difficulty level of the topic
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Tema actualizado con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The updated topic object
+  
+  <Expandable title="Topic Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the topic
+    </ResponseField>
+    
+    <ResponseField name="units_id" type="integer">
+      Foreign key reference to the parent unit
+    </ResponseField>
+    
+    <ResponseField name="tema" type="string">
+      Name of the topic
+    </ResponseField>
+    
+    <ResponseField name="descripcion" type="text">
+      Description of the topic content
+    </ResponseField>
+    
+    <ResponseField name="orden" type="integer">
+      Display order of the topic
+    </ResponseField>
+    
+    <ResponseField name="nivel_dificultad" type="string">
+      Difficulty level of the topic
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      When the topic was created
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      When the topic was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<CodeGroup>
+```json Example Response
+{
+  "success": true,
+  "message": "Tema actualizado con éxito",
+  "data": {
+    "id": 1,
+    "units_id": 1,
+    "tema": "Propiedades y Clasificación de Números Naturales",
+    "descripcion": "Estudio completo de las propiedades fundamentales y clasificación de los números naturales",
+    "orden": 1,
+    "nivel_dificultad": "Intermedio",
+    "created_at": "2026-03-05T10:30:00.000000Z",
+    "updated_at": "2026-03-05T11:45:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+### Delete a Topic
+
+<CodeGroup>
+```bash cURL
+curl -X DELETE "https://api.example.com/api/topics/1" \
+  -H "Accept: application/json"
+```
+
+```javascript JavaScript
+fetch('https://api.example.com/api/topics/1', {
+  method: 'DELETE',
+  headers: {
+    'Accept': 'application/json'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+```php PHP
+$client = new \GuzzleHttp\Client();
+$response = $client->delete('https://api.example.com/api/topics/1', [
+  'headers' => [
+    'Accept' => 'application/json'
+  ]
+]);
+$data = json_decode($response->getBody());
+```
+</CodeGroup>
+
+#### Path Parameters
+
+<ParamField name="id" type="integer" required>
+  The ID of the topic to delete
+</ParamField>
+
+#### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message: "Tema eliminado con éxito"
+</ResponseField>
+
+<ResponseField name="data" type="null">
+  Returns null for successful deletions
+</ResponseField>
+
+<CodeGroup>
+```json Example Response
+{
+  "success": true,
+  "message": "Tema eliminado con éxito",
+  "data": null
+}
+```
+</CodeGroup>
+
+---
+
+## Relationships
+
+### Unit (Parent)
+
+Each topic must belong to a unit. The `units_id` field is a foreign key that references the `units` table. When a unit is deleted, all its topics are automatically deleted (cascade delete).
+
+## Database Schema
+
+The topics table includes:
+
+- `id` - Primary key (auto-increment)
+- `units_id` - Foreign key to units table (cascade delete)
+- `tema` - String field for topic name (max 200 characters)
+- `descripcion` - Text field for description (nullable)
+- `orden` - Integer field for display order (default: 1)
+- `nivel_dificultad` - String field for difficulty level (default: "Básico")
+- `created_at` - Timestamp for creation
+- `updated_at` - Timestamp for last update

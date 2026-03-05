@@ -1,0 +1,242 @@
+---
+title: "Response Format"
+description: "Standard API response structure and error codes"
+---
+
+## Standard Response Structure
+
+All API endpoints return a consistent JSON response format:
+
+```json
+{
+  "success": true,
+  "message": "...",
+  "data": ...
+}
+```
+
+<ResponseField name="success" type="boolean" required>
+  Indicates whether the request was successful (`true`) or failed (`false`)
+</ResponseField>
+
+<ResponseField name="message" type="string" required>
+  A human-readable message describing the result of the operation
+</ResponseField>
+
+<ResponseField name="data" type="mixed" required>
+  The response payload. Can be:
+  - An object (for single resource responses)
+  - An array (for collection responses)
+  - `null` (for delete operations)
+</ResponseField>
+
+## Success Responses
+
+### List Resources (200 OK)
+
+When retrieving a collection of resources:
+
+```json
+{
+  "success": true,
+  "message": "Instituciones listadas con éxito",
+  "data": [
+    {
+      "id": 1,
+      "name": "Example Institution",
+      "created_at": "2024-01-01T00:00:00.000000Z",
+      "updated_at": "2024-01-01T00:00:00.000000Z"
+    },
+    {
+      "id": 2,
+      "name": "Another Institution",
+      "created_at": "2024-01-02T00:00:00.000000Z",
+      "updated_at": "2024-01-02T00:00:00.000000Z"
+    }
+  ]
+}
+```
+
+**HTTP Status Code**: `200`
+
+<Note>
+Messages are localized in Spanish. Examples include:
+- "Usuarios listados con éxito" (Users)
+- "Secciones listado con éxito" (Sections)
+- "Evaluaciones listadas con éxito" (Evaluations)
+</Note>
+
+### Get Single Resource (200 OK)
+
+When retrieving a specific resource:
+
+```json
+{
+  "success": true,
+  "message": "Institución obtenida con éxito",
+  "data": {
+    "id": 1,
+    "name": "Example Institution",
+    "created_at": "2024-01-01T00:00:00.000000Z",
+    "updated_at": "2024-01-01T00:00:00.000000Z"
+  }
+}
+```
+
+**HTTP Status Code**: `200`
+
+### Create Resource (201 Created)
+
+When successfully creating a new resource:
+
+```json
+{
+  "success": true,
+  "message": "Institución creada con éxito",
+  "data": {
+    "id": 3,
+    "name": "New Institution",
+    "created_at": "2024-01-03T00:00:00.000000Z",
+    "updated_at": "2024-01-03T00:00:00.000000Z"
+  }
+}
+```
+
+**HTTP Status Code**: `201`
+
+<Tip>
+Success messages for creation operations:
+- "Usuario creado con éxito" (User created)
+- "Sección creado con éxito" (Section created)
+- "Evaluación creada con éxito" (Evaluation created)
+</Tip>
+
+### Update Resource (200 OK)
+
+When successfully updating a resource:
+
+```json
+{
+  "success": true,
+  "message": "Institución actualizada con éxito",
+  "data": {
+    "id": 1,
+    "name": "Updated Institution Name",
+    "created_at": "2024-01-01T00:00:00.000000Z",
+    "updated_at": "2024-01-03T10:30:00.000000Z"
+  }
+}
+```
+
+**HTTP Status Code**: `200`
+
+### Delete Resource (200 OK)
+
+When successfully deleting a resource:
+
+```json
+{
+  "success": true,
+  "message": "Institución eliminada con éxito",
+  "data": null
+}
+```
+
+**HTTP Status Code**: `200`
+
+<Note>
+Delete operations return `null` in the `data` field since the resource no longer exists.
+</Note>
+
+## HTTP Status Codes
+
+The API uses standard HTTP status codes:
+
+| Status Code | Description | When Used |
+|-------------|-------------|----------|
+| **200** | OK | Successful GET, PUT, DELETE operations |
+| **201** | Created | Successful POST operations |
+| **400** | Bad Request | Invalid request data or validation errors |
+| **401** | Unauthorized | Missing or invalid authentication token |
+| **404** | Not Found | Resource does not exist |
+| **422** | Unprocessable Entity | Validation failed on request data |
+| **500** | Internal Server Error | Unexpected server error |
+
+## Error Responses
+
+When an error occurs, the response format remains consistent but with `success: false`:
+
+### Validation Error (422)
+
+```json
+{
+  "success": false,
+  "message": "The given data was invalid.",
+  "errors": {
+    "name": [
+      "The name field is required."
+    ],
+    "email": [
+      "The email must be a valid email address."
+    ]
+  }
+}
+```
+
+### Authentication Error (401)
+
+```json
+{
+  "success": false,
+  "message": "Unauthenticated."
+}
+```
+
+### Not Found Error (404)
+
+```json
+{
+  "success": false,
+  "message": "Resource not found."
+}
+```
+
+<Tip>
+All controllers use `$request->validated()` to ensure data validation before processing, which automatically returns 422 errors for invalid input.
+</Tip>
+
+## Response Messages by Resource
+
+Each resource type has specific success messages:
+
+### Institutions
+- List: "Instituciones listadas con éxito"
+- Show: "Institución obtenida con éxito"
+- Create: "Institución creada con éxito"
+- Update: "Institución actualizada con éxito"
+- Delete: "Institución eliminada con éxito"
+
+### Users
+- List: "Usuarios listados con éxito"
+- Show: "Usuario obtenido con éxito"
+- Create: "Usuario creado con éxito"
+- Update: "Usuario actualizado con éxito"
+- Delete: "Usuario eliminado con éxito"
+
+### Sections
+- List: "Secciones listado con éxito"
+- Show: "Sección obtenido con éxito"
+- Create: "Sección creado con éxito"
+- Update: "Sección actualizado con éxito"
+- Delete: "Sección eliminado con éxito"
+
+### Evaluations
+- List: "Evaluaciones listadas con éxito"
+- Show: "Evaluación obtenida con éxito"
+- Create: "Evaluación creada con éxito"
+- Update: "Evaluación actualizada con éxito"
+- Delete: "Evaluación eliminada con éxito"
+
+<Note>
+Other resources (Units, Topics, Resources, Questions, Response Options, Registrations, Evaluation Questions) follow the same message pattern in Spanish.
+</Note>

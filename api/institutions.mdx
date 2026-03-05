@@ -1,0 +1,360 @@
+---
+title: 'Institutions'
+description: 'Manage educational institutions in the system'
+---
+
+## Overview
+
+The Institutions API allows you to manage educational institutions, including their contact information, academic year configuration, and institutional details.
+
+## Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/institutions` | List all institutions |
+| POST | `/api/institutions` | Create a new institution |
+| GET | `/api/institutions/{id}` | Get a specific institution |
+| PUT | `/api/institutions/{id}` | Update an institution |
+| DELETE | `/api/institutions/{id}` | Delete an institution |
+
+---
+
+## List All Institutions
+
+<CodeGroup>
+```bash GET /api/institutions
+curl -X GET "https://api.example.com/api/institutions" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+</CodeGroup>
+
+### Response
+
+<ResponseField name="success" type="boolean" required>
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string" required>
+  Response message in Spanish
+</ResponseField>
+
+<ResponseField name="data" type="array" required>
+  Array of institution objects
+  
+  <Expandable title="Institution Object">
+    <ResponseField name="id" type="integer">
+      Unique identifier for the institution
+    </ResponseField>
+    
+    <ResponseField name="nombre" type="string">
+      Institution name
+    </ResponseField>
+    
+    <ResponseField name="direccion" type="string">
+      Physical address of the institution
+    </ResponseField>
+    
+    <ResponseField name="telefono" type="string">
+      Contact phone number
+    </ResponseField>
+    
+    <ResponseField name="email" type="string">
+      Contact email address
+    </ResponseField>
+    
+    <ResponseField name="logo_url" type="string" optional>
+      URL to the institution's logo image
+    </ResponseField>
+    
+    <ResponseField name="anio_academico" type="integer">
+      Current academic year (e.g., 2026)
+    </ResponseField>
+    
+    <ResponseField name="fecha_inicio" type="date">
+      Academic year start date (YYYY-MM-DD)
+    </ResponseField>
+    
+    <ResponseField name="fecha_fin" type="date">
+      Academic year end date (YYYY-MM-DD)
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="timestamp">
+      Record creation timestamp
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="timestamp">
+      Record last update timestamp
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<CodeGroup>
+```json Response Example
+{
+  "success": true,
+  "message": "Instituciones listadas con éxito",
+  "data": [
+    {
+      "id": 1,
+      "nombre": "Instituto Educativo San Martín",
+      "direccion": "Av. Principal 123, Lima",
+      "telefono": "+51 1 234 5678",
+      "email": "contacto@sanmartin.edu.pe",
+      "logo_url": "https://example.com/logos/sanmartin.png",
+      "anio_academico": 2026,
+      "fecha_inicio": "2026-03-01",
+      "fecha_fin": "2026-12-20",
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    }
+  ]
+}
+```
+</CodeGroup>
+
+---
+
+## Create Institution
+
+<CodeGroup>
+```bash POST /api/institutions
+curl -X POST "https://api.example.com/api/institutions" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "nombre": "Colegio Nacional Bolognesi",
+    "direccion": "Jr. Bolognesi 456, Arequipa",
+    "telefono": "+51 54 123456",
+    "email": "info@bolognesi.edu.pe",
+    "logo_url": "https://example.com/logos/bolognesi.png",
+    "anio_academico": 2026,
+    "fecha_inicio": "2026-03-15",
+    "fecha_fin": "2026-12-15"
+  }'
+```
+</CodeGroup>
+
+### Request Parameters
+
+<ParamField path="nombre" type="string" required>
+  Name of the institution
+</ParamField>
+
+<ParamField path="direccion" type="string" required>
+  Physical address of the institution
+</ParamField>
+
+<ParamField path="telefono" type="string" required>
+  Contact phone number
+</ParamField>
+
+<ParamField path="email" type="string" required>
+  Contact email address
+</ParamField>
+
+<ParamField path="logo_url" type="string" optional>
+  URL to the institution's logo image. Can be null.
+</ParamField>
+
+<ParamField path="anio_academico" type="integer" required>
+  Academic year (e.g., 2026). Must be a valid year number.
+</ParamField>
+
+<ParamField path="fecha_inicio" type="date" required>
+  Academic year start date in YYYY-MM-DD format
+</ParamField>
+
+<ParamField path="fecha_fin" type="date" required>
+  Academic year end date in YYYY-MM-DD format
+</ParamField>
+
+### Response
+
+<CodeGroup>
+```json 201 - Created
+{
+  "success": true,
+  "message": "Institución creada con éxito",
+  "data": {
+    "id": 2,
+    "nombre": "Colegio Nacional Bolognesi",
+    "direccion": "Jr. Bolognesi 456, Arequipa",
+    "telefono": "+51 54 123456",
+    "email": "info@bolognesi.edu.pe",
+    "logo_url": "https://example.com/logos/bolognesi.png",
+    "anio_academico": 2026,
+    "fecha_inicio": "2026-03-15",
+    "fecha_fin": "2026-12-15",
+    "created_at": "2026-03-05T11:15:00.000000Z",
+    "updated_at": "2026-03-05T11:15:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## Get Institution
+
+<CodeGroup>
+```bash GET /api/institutions/{id}
+curl -X GET "https://api.example.com/api/institutions/1" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the institution
+</ParamField>
+
+### Response
+
+<CodeGroup>
+```json 200 - Success
+{
+  "success": true,
+  "message": "Institución obtenida con éxito",
+  "data": {
+    "id": 1,
+    "nombre": "Instituto Educativo San Martín",
+    "direccion": "Av. Principal 123, Lima",
+    "telefono": "+51 1 234 5678",
+    "email": "contacto@sanmartin.edu.pe",
+    "logo_url": "https://example.com/logos/sanmartin.png",
+    "anio_academico": 2026,
+    "fecha_inicio": "2026-03-01",
+    "fecha_fin": "2026-12-20",
+    "created_at": "2026-03-05T10:30:00.000000Z",
+    "updated_at": "2026-03-05T10:30:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## Update Institution
+
+<CodeGroup>
+```bash PUT /api/institutions/{id}
+curl -X PUT "https://api.example.com/api/institutions/1" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "nombre": "Instituto Educativo San Martín de Porres",
+    "direccion": "Av. Principal 123, Lima",
+    "telefono": "+51 1 234 5679",
+    "email": "contacto@sanmartin.edu.pe",
+    "logo_url": "https://example.com/logos/sanmartin-new.png",
+    "anio_academico": 2026,
+    "fecha_inicio": "2026-03-01",
+    "fecha_fin": "2026-12-20"
+  }'
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the institution to update
+</ParamField>
+
+### Request Parameters
+
+All parameters from the Create endpoint apply. You can send partial updates.
+
+<ParamField path="nombre" type="string" required>
+  Name of the institution
+</ParamField>
+
+<ParamField path="direccion" type="string" required>
+  Physical address of the institution
+</ParamField>
+
+<ParamField path="telefono" type="string" required>
+  Contact phone number
+</ParamField>
+
+<ParamField path="email" type="string" required>
+  Contact email address
+</ParamField>
+
+<ParamField path="logo_url" type="string" optional>
+  URL to the institution's logo image
+</ParamField>
+
+<ParamField path="anio_academico" type="integer" required>
+  Academic year number
+</ParamField>
+
+<ParamField path="fecha_inicio" type="date" required>
+  Academic year start date (YYYY-MM-DD)
+</ParamField>
+
+<ParamField path="fecha_fin" type="date" required>
+  Academic year end date (YYYY-MM-DD)
+</ParamField>
+
+### Response
+
+<CodeGroup>
+```json 200 - Success
+{
+  "success": true,
+  "message": "Institución actualizada con éxito",
+  "data": {
+    "id": 1,
+    "nombre": "Instituto Educativo San Martín de Porres",
+    "direccion": "Av. Principal 123, Lima",
+    "telefono": "+51 1 234 5679",
+    "email": "contacto@sanmartin.edu.pe",
+    "logo_url": "https://example.com/logos/sanmartin-new.png",
+    "anio_academico": 2026,
+    "fecha_inicio": "2026-03-01",
+    "fecha_fin": "2026-12-20",
+    "created_at": "2026-03-05T10:30:00.000000Z",
+    "updated_at": "2026-03-05T14:20:00.000000Z"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## Delete Institution
+
+<CodeGroup>
+```bash DELETE /api/institutions/{id}
+curl -X DELETE "https://api.example.com/api/institutions/1" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the institution to delete
+</ParamField>
+
+### Response
+
+<CodeGroup>
+```json 200 - Success
+{
+  "success": true,
+  "message": "Institución eliminada con éxito",
+  "data": null
+}
+```
+</CodeGroup>
+
+<Warning>
+  Deleting an institution will cascade delete all associated users and registrations due to foreign key constraints.
+</Warning>

@@ -1,80 +1,349 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Make your first API request in minutes"
 ---
 
-## Get started in three steps
+## Prerequisites
 
-Get your documentation site running locally and make your first customization.
+Before you begin, make sure you've completed the [installation](/installation) steps.
 
-### Step 1: Set up your local environment
+## Start the Server
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+<Steps>
+  <Step title="Start the development server">
+    The application includes a convenient development script that starts all necessary services:
 
-### Step 2: Deploy your changes
+    ```bash
+    composer run dev
+    ```
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    This command runs:
+    - **Laravel development server** on `http://localhost:8000`
+    - **Queue worker** for background jobs
+    - **Log viewer** (Laravel Pail) for real-time logs
+    - **Vite dev server** for frontend assets
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    <Note>
+      The dev script uses `concurrently` to run all services simultaneously. All services will stop when you terminate the process.
+    </Note>
+  </Step>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+  <Step title="Verify the server is running">
+    Open your browser or use curl to test the server:
 
-### Step 3: Go live
+    ```bash
+    curl http://localhost:8000/api/user
+    ```
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+    <Tip>
+      You can also start just the server with: `php artisan serve`
+    </Tip>
+  </Step>
+</Steps>
 
-## Next steps
+## Make Your First API Request
 
-Now that you have your docs running, explore these key features:
+The API is now ready at `http://localhost:8000/api`. Let's explore the available endpoints.
 
-<CardGroup cols={2}>
+### List All Institutions
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+Retrieve all educational institutions:
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+<CodeGroup>
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+```bash cURL
+curl http://localhost:8000/api/institutions
+```
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+```javascript JavaScript (Fetch)
+fetch('http://localhost:8000/api/institutions')
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
 
-</CardGroup>
+```python Python (Requests)
+import requests
+
+response = requests.get('http://localhost:8000/api/institutions')
+print(response.json())
+```
+
+</CodeGroup>
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Instituciones listadas con éxito",
+  "data": [
+    {
+      "id": 1,
+      "nombre": "Universidad Ejemplo",
+      "direccion": "Calle Principal 123",
+      "telefono": "555-0123",
+      "email": "contacto@universidad.edu",
+      "logo_url": "https://example.com/logo.png",
+      "anio_academico": "2026",
+      "fecha_inicio": "2026-01-15",
+      "fecha_fin": "2026-12-15",
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    }
+  ]
+}
+```
+
+### Get a Specific Institution
+
+Retrieve a single institution by ID:
+
+```bash
+curl http://localhost:8000/api/institutions/1
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Institución obtenida con éxito",
+  "data": {
+    "id": 1,
+    "nombre": "Universidad Ejemplo",
+    "direccion": "Calle Principal 123",
+    "telefono": "555-0123",
+    "email": "contacto@universidad.edu",
+    "logo_url": "https://example.com/logo.png",
+    "anio_academico": "2026",
+    "fecha_inicio": "2026-01-15",
+    "fecha_fin": "2026-12-15",
+    "created_at": "2026-03-05T10:30:00.000000Z",
+    "updated_at": "2026-03-05T10:30:00.000000Z"
+  }
+}
+```
+
+### Create a New Institution
+
+Create a new institution with a POST request:
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST http://localhost:8000/api/institutions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "Instituto Tecnológico",
+    "direccion": "Av. Tecnología 456",
+    "telefono": "555-0456",
+    "email": "info@instituto.edu",
+    "logo_url": "https://example.com/logo2.png",
+    "anio_academico": "2026",
+    "fecha_inicio": "2026-02-01",
+    "fecha_fin": "2026-11-30"
+  }'
+```
+
+```javascript JavaScript (Fetch)
+fetch('http://localhost:8000/api/institutions', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    nombre: 'Instituto Tecnológico',
+    direccion: 'Av. Tecnología 456',
+    telefono: '555-0456',
+    email: 'info@instituto.edu',
+    logo_url: 'https://example.com/logo2.png',
+    anio_academico: '2026',
+    fecha_inicio: '2026-02-01',
+    fecha_fin: '2026-11-30'
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+</CodeGroup>
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Institución creada con éxito",
+  "data": {
+    "id": 2,
+    "nombre": "Instituto Tecnológico",
+    "direccion": "Av. Tecnología 456",
+    "telefono": "555-0456",
+    "email": "info@instituto.edu",
+    "logo_url": "https://example.com/logo2.png",
+    "anio_academico": "2026",
+    "fecha_inicio": "2026-02-01",
+    "fecha_fin": "2026-11-30",
+    "created_at": "2026-03-05T14:20:00.000000Z",
+    "updated_at": "2026-03-05T14:20:00.000000Z"
+  }
+}
+```
+
+### List All Users
+
+Retrieve all users in the system:
+
+```bash
+curl http://localhost:8000/api/users
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Usuarios listados con éxito",
+  "data": [
+    {
+      "id": 1,
+      "institutions_id": 1,
+      "rol": "admin",
+      "nombre": "Juan",
+      "apellido": "Pérez",
+      "email": "juan.perez@example.com",
+      "documento_identidad": "12345678",
+      "fecha_nacimiento": "1990-05-15",
+      "telefono": "555-1234",
+      "activo": true,
+      "created_at": "2026-03-05T10:30:00.000000Z",
+      "updated_at": "2026-03-05T10:30:00.000000Z"
+    }
+  ]
+}
+```
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  The `password` and `remember_token` fields are automatically hidden from API responses for security.
 </Note>
+
+## Available API Endpoints
+
+The API follows RESTful conventions. All endpoints follow the same response structure:
+
+```json
+{
+  "success": true|false,
+  "message": "Description of the operation",
+  "data": {} or [] or null
+}
+```
+
+### Resource Endpoints
+
+All resources support standard CRUD operations:
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/{resource}` | List all records |
+| POST | `/api/{resource}` | Create a new record |
+| GET | `/api/{resource}/{id}` | Get a specific record |
+| PUT/PATCH | `/api/{resource}/{id}` | Update a record |
+| DELETE | `/api/{resource}/{id}` | Delete a record |
+
+### Available Resources
+
+- `/api/institutions` - Educational institutions
+- `/api/users` - System users
+- `/api/sections` - Class sections
+- `/api/registrations` - Student enrollments
+- `/api/units` - Course units
+- `/api/topics` - Unit topics
+- `/api/resources` - Educational resources
+- `/api/questions` - Assessment questions
+- `/api/response_option` - Question answer options
+- `/api/evaluations` - Student evaluations
+- `/api/eval_preguntas` - Evaluation questions
+
+## Authentication (Optional)
+
+The API includes Laravel Sanctum for authentication. The `/api/user` endpoint requires authentication:
+
+```bash
+curl http://localhost:8000/api/user \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"
+```
+
+<Tip>
+  To implement token-based authentication, refer to the [Laravel Sanctum documentation](https://laravel.com/docs/12.x/sanctum).
+</Tip>
+
+## Testing the API
+
+Run the test suite to verify everything works:
+
+```bash
+composer test
+```
+
+This command:
+1. Clears the configuration cache
+2. Runs PHPUnit tests
+
+## Next Steps
+
+Now that you've made your first API requests:
+
+- Explore other API endpoints
+- Implement authentication with Laravel Sanctum
+- Set up API documentation
+- Configure CORS for frontend integration
+- Deploy to production
+
+## Common Operations
+
+### Update a Record
+
+```bash
+curl -X PUT http://localhost:8000/api/institutions/1 \
+  -H "Content-Type: application/json" \
+  -d '{"nombre": "Universidad Actualizada"}'
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Institución actualizada con éxito",
+  "data": {
+    "id": 1,
+    "nombre": "Universidad Actualizada",
+    "direccion": "Calle Principal 123",
+    "telefono": "555-0123",
+    "email": "contacto@universidad.edu",
+    "logo_url": "https://example.com/logo.png",
+    "anio_academico": "2026",
+    "fecha_inicio": "2026-01-15",
+    "fecha_fin": "2026-12-15",
+    "created_at": "2026-03-05T10:30:00.000000Z",
+    "updated_at": "2026-03-05T15:45:00.000000Z"
+  }
+}
+```
+
+### Delete a Record
+
+```bash
+curl -X DELETE http://localhost:8000/api/institutions/1
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Institución eliminada con éxito",
+  "data": null
+}
+```
