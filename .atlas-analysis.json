@@ -1,0 +1,126 @@
+{
+  "projectType": "api-service",
+  "projectName": "Backend App",
+  "projectDescription": "A Laravel-based REST API service for managing educational institutions, users, evaluations, and learning resources.",
+  "theme": "aspen",
+  "primaryColor": "#FF2D20",
+  "lightColor": "#FFE8E5",
+  "darkColor": "#C41E0E",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Authentication",
+            "pages": [
+              "authentication/overview",
+              "authentication/sanctum"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/environment",
+              "configuration/database",
+              "configuration/deployment"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api/overview",
+              "api/responses"
+            ]
+          },
+          {
+            "group": "Institutions & Users",
+            "pages": [
+              "api/institutions",
+              "api/users",
+              "api/registrations"
+            ]
+          },
+          {
+            "group": "Academic Structure",
+            "pages": [
+              "api/sections",
+              "api/units",
+              "api/topics"
+            ]
+          },
+          {
+            "group": "Learning Resources",
+            "pages": [
+              "api/resources",
+              "api/questions",
+              "api/response-options"
+            ]
+          },
+          {
+            "group": "Evaluations",
+            "pages": [
+              "api/evaluations",
+              "api/eval-preguntas"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "RESTful API with Laravel 12",
+    "Laravel Sanctum authentication",
+    "Complete CRUD operations for all resources",
+    "Educational institution management",
+    "User registration and section management",
+    "Learning units, topics, and resources",
+    "Question bank with response options",
+    "Evaluation system with question assignments",
+    "SQLite database with migration support",
+    "Standardized JSON response format"
+  ],
+  "publicApiSurface": [
+    "GET /api/institutions",
+    "POST /api/institutions",
+    "GET /api/institutions/{id}",
+    "PUT /api/institutions/{id}",
+    "DELETE /api/institutions/{id}",
+    "GET /api/users",
+    "POST /api/users",
+    "GET /api/users/{id}",
+    "PUT /api/users/{id}",
+    "DELETE /api/users/{id}",
+    "GET /api/sections",
+    "POST /api/sections",
+    "GET /api/registrations",
+    "POST /api/registrations",
+    "GET /api/units",
+    "POST /api/units",
+    "GET /api/topics",
+    "POST /api/topics",
+    "GET /api/resources",
+    "POST /api/resources",
+    "GET /api/questions",
+    "POST /api/questions",
+    "GET /api/response_option",
+    "POST /api/response_option",
+    "GET /api/evaluations",
+    "POST /api/evaluations",
+    "GET /api/eval_preguntas",
+    "POST /api/eval_preguntas"
+  ]
+}
